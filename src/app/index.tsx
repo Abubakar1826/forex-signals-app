@@ -12,7 +12,8 @@ import {
   Platform,
 } from "react-native";
 
-const Notifications={AndroidImportance:{HIGH:4},setNotificationHandler:()=>{},setNotificationChannelAsync:async()=>{},getPermissionsAsync:async()=>({status:"granted"}),requestPermissionsAsync:async()=>{},scheduleNotificationAsync:async()=>{}};
+import * as Notifications from "expo-notifications";
+import Constants from "expo-constants";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
@@ -162,6 +163,79 @@ Notifications.setNotificationHandler({
     shouldSetBadge: false,
   }),
 });
+
+
+async function registerForPushNotificationsAsync() {
+
+  try {
+
+    if (Platform.OS === "android") {
+
+      await Notifications.setNotificationChannelAsync(
+        "signals",
+        {
+          name: "Signal Notifications",
+          importance: Notifications.AndroidImportance.HIGH,
+          sound: "default",
+          vibrationPattern: [0, 250, 250, 250],
+        }
+      );
+
+    }
+
+    const permission =
+      await Notifications.getPermissionsAsync();
+
+    let finalStatus =
+      permission.status;
+
+    if (finalStatus !== "granted") {
+
+      const requested =
+        await Notifications.requestPermissionsAsync();
+
+      finalStatus =
+        requested.status;
+
+    }
+
+    if (finalStatus !== "granted") {
+      return null;
+    }
+
+    const projectId =
+      Constants.expoConfig?.extra?.eas?.projectId ||
+      Constants.easConfig?.projectId;
+
+    if (!projectId) {
+
+      console.log(
+        "Push Token Error: EAS projectId is missing."
+      );
+
+      return null;
+
+    }
+
+    const tokenResponse =
+      await Notifications.getExpoPushTokenAsync({
+        projectId,
+      });
+
+    return tokenResponse.data || null;
+
+  } catch (error) {
+
+    console.log(
+      "Push Token Registration Error:",
+      error
+    );
+
+    return null;
+
+  }
+
+}
 
 
 export default function App() {
@@ -345,7 +419,58 @@ export default function App() {
       return normalDate;
     }
 
+    /* NUMERIC DATE SUPPORT */
 
+    const numericMatch = text.match(
+      /^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4}),?\s+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM)?$/i
+    );
+
+    if (numericMatch) {
+      const first = Number(numericMatch[1]);
+      const second = Number(numericMatch[2]);
+      const year = Number(numericMatch[3]);
+      let hour = Number(numericMatch[4]);
+      const minute = Number(numericMatch[5]);
+      const secondValue = Number(numericMatch[6] || 0);
+      const ampm = numericMatch[7]
+        ? numericMatch[7].toUpperCase()
+        : "";
+
+      let month;
+      let day;
+
+      if (first > 12) {
+        day = first;
+        month = second - 1;
+      } else if (second > 12) {
+        month = first - 1;
+        day = second;
+      } else {
+        month = first - 1;
+        day = second;
+      }
+
+      if (ampm === "PM" && hour < 12) {
+        hour += 12;
+      }
+
+      if (ampm === "AM" && hour === 12) {
+        hour = 0;
+      }
+
+      const result = new Date(
+        year,
+        month,
+        day,
+        hour,
+        minute,
+        secondValue
+      );
+
+      if (!isNaN(result.getTime())) {
+        return result;
+      }
+    }
     /* FORMAT:
        04 Sep 2026, 10:30 PM
        4 September 2026, 10:30 PM
@@ -930,6 +1055,48 @@ export default function App() {
   }, []);
 
 
+  /* REGISTER DEVICE FOR SERVER PUSH NOTIFICATIONS */
+
+  useEffect(() => {
+
+    async function registerDevicePushToken() {
+
+      try {
+
+        const currentUserId =
+          await getOrCreateUserId();
+
+        const pushToken =
+          await registerForPushNotificationsAsync();
+
+        if (
+          currentUserId &&
+          pushToken
+        ) {
+
+          await saveExpoPushTokenToFirestore(
+            currentUserId,
+            pushToken
+          );
+
+        }
+
+      } catch (error) {
+
+        console.log(
+          "Device Push Registration Error:",
+          error
+        );
+
+      }
+
+    }
+
+    registerDevicePushToken();
+
+  }, []);
+
+
 
   /* SIGNAL NOTIFICATION */
 
@@ -980,19 +1147,15 @@ export default function App() {
 
 
         trigger:
-
-          Platform.OS === "android"
-
-            ? {
-
-                seconds: 1,
-
-                channelId:
-                  "signals",
-
-              }
-
-            : null,
+  Platform.OS === "android"
+    ? {
+        type:
+          Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+        seconds: 1,
+        repeats: false,
+        channelId: "signals",
+      }
+    : null,
 
       });
 
@@ -1044,19 +1207,15 @@ export default function App() {
 
 
         trigger:
-
-          Platform.OS === "android"
-
-            ? {
-
-                seconds: 1,
-
-                channelId:
-                  "signals",
-
-              }
-
-            : null,
+  Platform.OS === "android"
+    ? {
+        type:
+          Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+        seconds: 1,
+        repeats: false,
+        channelId: "signals",
+      }
+    : null,
 
       });
 
@@ -2683,18 +2842,15 @@ export default function App() {
 
 
 
-  /* PRIVACY */
+  /* PRIVACY POLICY */
 
   if (
     page === "PRIVACY"
   ) {
-
     return (
-
       <InfoPage
         title="PRIVACY POLICY"
       >
-
         <Text
           style={
             styles.sectionTitle
@@ -2703,6 +2859,21 @@ export default function App() {
           PRIVACY POLICY
         </Text>
 
+        <Text
+          style={
+            styles.heading
+          }
+        >
+          About This Policy
+        </Text>
+
+        <Text
+          style={
+            styles.paragraph
+          }
+        >
+          FOREX SIGNALS 800 PIPS respects your privacy. This policy explains how information is handled when you use the app.
+        </Text>
 
         <Text
           style={
@@ -2712,15 +2883,29 @@ export default function App() {
           Information We Collect
         </Text>
 
+        <Text
+          style={
+            styles.paragraph
+          }
+        >
+          The app does not require you to create an account or provide your name, phone number, or email address for basic use. A device-generated User ID may be used for app functionality and membership status.
+        </Text>
+
+        <Text
+          style={
+            styles.heading
+          }
+        >
+          Signal Data
+        </Text>
 
         <Text
           style={
             styles.paragraph
           }
         >
-          We do not require users to create an account to access the basic features of the app.
+          Signal information may be stored and retrieved through Firebase/Firestore to provide active signals, closed signals, and monthly reports.
         </Text>
-
 
         <Text
           style={
@@ -2730,15 +2915,13 @@ export default function App() {
           Notifications
         </Text>
 
-
         <Text
           style={
             styles.paragraph
           }
         >
-          If notifications are enabled, the app may send important signal updates to your device.
+          If notifications are enabled, the app may send new and closed signal updates to your device. Notifications can be controlled through the app and device settings.
         </Text>
-
 
         <Text
           style={
@@ -2748,19 +2931,80 @@ export default function App() {
           Payments
         </Text>
 
+        <Text
+          style={
+            styles.paragraph
+          }
+        >
+          Premium subscriptions and payments are processed through Google Play. We do not collect or store your payment card or banking details.
+        </Text>
+
+        <Text
+          style={
+            styles.heading
+          }
+        >
+          Data Sharing
+        </Text>
 
         <Text
           style={
             styles.paragraph
           }
         >
-          Premium subscriptions and payments will be processed through Google Play.
+          We do not sell personal information. Information required to operate the app may be processed by Firebase/Google services and Google Play.
+        </Text>
+
+        <Text
+          style={
+            styles.heading
+          }
+        >
+          Security and Retention
+        </Text>
+
+        <Text
+          style={
+            styles.paragraph
+          }
+        >
+          Reasonable measures are used to protect information handled by the app. Information is retained only as needed for app operation and related services.
+        </Text>
+
+        <Text
+          style={
+            styles.heading
+          }
+        >
+          Changes to This Policy
+        </Text>
+
+        <Text
+          style={
+            styles.paragraph
+          }
+        >
+          This Privacy Policy may be updated when the app or its data practices change. The updated policy will be made available within the app.
+        </Text>
+
+        <Text
+          style={
+            styles.heading
+          }
+        >
+          Contact
+        </Text>
+
+        <Text
+          style={
+            styles.paragraph
+          }
+        >
+          For privacy-related questions or requests, please use the developer contact information provided on the Google Play listing.
         </Text>
 
       </InfoPage>
-
     );
-
   }
 
 
@@ -3452,6 +3696,10 @@ export default function App() {
               false
             }
 
+            contentContainerStyle={{
+              paddingBottom: 120,
+            }}
+
           >
 
 
@@ -3702,6 +3950,10 @@ export default function App() {
               false
             }
 
+            contentContainerStyle={{
+              paddingBottom: 120,
+            }}
+
           >
 
 
@@ -3947,13 +4199,16 @@ export default function App() {
                 screenWidth
             }}
 
-            showsVerticalScrollIndicator={
+            
+showsVerticalScrollIndicator={
               false
             }
 
-          >
-
-
+          
+            contentContainerStyle={{
+              paddingBottom: 100
+            }}
+            >
             {availableYears.length > 1 && (
 
               <ScrollView
