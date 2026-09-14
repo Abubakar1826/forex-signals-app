@@ -8,12 +8,17 @@
     "scheme": "forexsignalsapp",
     "userInterfaceStyle": "automatic",
     "android": {
-      "icon": "./assets/images/icon.png",
-      "versionCode": 3,
-      "predictiveBackGestureEnabled": false,
-      "googleServicesFile": "./google-services.json",
-      "package": "com.abubakar1826.forexsignals"
-    },
+  "icon": "./assets/images/icon.png",
+  "adaptiveIcon": {
+    "foregroundImage": "./assets/images/android-icon-foreground.png",
+    "backgroundImage": "./assets/images/android-icon-background.png",
+    "monochromeImage": "./assets/images/android-icon-monochrome.png"
+  },
+  "versionCode": 3,
+  "predictiveBackGestureEnabled": false,
+  "googleServicesFile": "./google-services.json",
+  "package": "com.abubakar1826.forexsignals"
+}
     "web": {
       "output": "static",
       "favicon": "./assets/images/favicon.png"
