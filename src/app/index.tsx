@@ -238,6 +238,61 @@ async function registerForPushNotificationsAsync() {
 }
 
 
+
+
+async function saveExpoPushTokenToFirestore(
+  userId,
+  pushToken,
+  notificationEnabled = true
+) {
+
+  if (!userId || !pushToken) {
+    return;
+  }
+
+  try {
+
+    const response = await fetch(
+      `${USERS_FIRESTORE_URL}/${encodeURIComponent(userId)}`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          fields: {
+            expoPushToken: {
+              stringValue: pushToken,
+            },
+            notificationEnabled: {
+              booleanValue: !!notificationEnabled,
+            },
+            pushTokenUpdatedAt: {
+              stringValue: new Date().toISOString(),
+            },
+          },
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      console.log(
+        "Push Token Firestore Error:",
+        await response.text()
+      );
+    }
+
+  } catch (error) {
+
+    console.log(
+      "Push Token Save Error:",
+      error
+    );
+
+  }
+
+}
+
 export default function App() {
 
   const [activeTab, setActiveTab] = useState(0);
@@ -820,6 +875,11 @@ export default function App() {
             fields.userType
           ),
 
+        notificationEnabled:
+          fields.notificationEnabled?.booleanValue !== undefined
+            ? fields.notificationEnabled.booleanValue
+            : true,
+
       };
 
     } catch (error) {
@@ -1076,7 +1136,8 @@ export default function App() {
 
           await saveExpoPushTokenToFirestore(
             currentUserId,
-            pushToken
+            pushToken,
+            notifications
           );
 
         }
@@ -1104,6 +1165,10 @@ export default function App() {
     signal,
     status
   ) {
+
+    /* REMOTE PUSH ONLY: server/admin sends signal notifications.
+       Firestore polling must not create duplicate local notifications. */
+    return;
 
     if (!notifications) {
       return;
@@ -1170,6 +1235,52 @@ export default function App() {
 
   }
 
+
+
+  async function updateNotificationPreference(enabled) {
+
+    setNotifications(enabled);
+
+    try {
+
+      const currentUserId =
+        userId ||
+        await getOrCreateUserId();
+
+      if (!currentUserId) {
+        return;
+      }
+
+      await fetch(
+        `${USERS_FIRESTORE_URL}/${encodeURIComponent(currentUserId)}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            fields: {
+              notificationEnabled: {
+                booleanValue: !!enabled,
+              },
+              notificationPreferenceUpdatedAt: {
+                stringValue: new Date().toISOString(),
+              },
+            },
+          }),
+        }
+      );
+
+    } catch (error) {
+
+      console.log(
+        "Notification Preference Error:",
+        error
+      );
+
+    }
+
+  }
 
 
   /* TEST NOTIFICATION */
@@ -2131,7 +2242,7 @@ export default function App() {
               }
 
               onValueChange={
-                setNotifications
+                updateNotificationPreference
               }
 
             />
