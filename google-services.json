@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "2602953786",
+    "project_id": "forex-signals-800-pips",
+    "storage_bucket": "forex-signals-800-pips.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:2602953786:android:b59650b38e1622ec951903",
+        "android_client_info": {
+          "package_name": "com.abubakar1826.forexsignals"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAojFzYaRCwVhdwfqCrrLlBMh2J-AR3dSk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
