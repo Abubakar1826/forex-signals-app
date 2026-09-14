@@ -18,7 +18,7 @@
   "predictiveBackGestureEnabled": false,
   "googleServicesFile": "./google-services.json",
   "package": "com.abubakar1826.forexsignals"
-}
+}, 
     "web": {
       "output": "static",
       "favicon": "./assets/images/favicon.png"
