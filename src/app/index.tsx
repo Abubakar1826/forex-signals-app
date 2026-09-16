@@ -252,8 +252,12 @@ async function saveExpoPushTokenToFirestore(
 
   try {
 
-    const response = await fetch(
-      `${USERS_FIRESTORE_URL}/${encodeURIComponent(userId)}`,
+    const updateUrl =
+  `${USERS_FIRESTORE_URL}/${encodeURIComponent(userId)}?updateMask.fieldPaths=expoPushToken&updateMask.fieldPaths=notificationEnabled&updateMask.fieldPaths=pushTokenUpdatedAt`;
+
+const response = await fetch(
+  updateUrl,
+      
       {
         method: "PATCH",
         headers: {
