@@ -735,93 +735,97 @@ export default function App() {
 
 
 
+
   /* SAVE USER TO FIREBASE */
 
-  async function saveUserToFirestore(
-    currentUserId,
-    currentTrialStart,
-    currentTrialStatus,
-    currentUserType
-  ) {
+async function saveUserToFirestore(
+  currentUserId,
+  currentTrialStart,
+  currentTrialStatus,
+  currentUserType
+) {
 
-    if (!currentUserId) {
-      return;
-    }
+  if (!currentUserId) {
+    return;
+  }
 
+  try {
 
-    try {
+    const updateUrl =
+      `${USERS_FIRESTORE_URL}/${encodeURIComponent(currentUserId)}` +
+      `?updateMask.fieldPaths=userId` +
+      `&updateMask.fieldPaths=trialStart` +
+      `&updateMask.fieldPaths=trialStatus` +
+      `&updateMask.fieldPaths=userType` +
+      `&updateMask.fieldPaths=lastActive`;
 
-      const response =
-        await fetch(
-          `${USERS_FIRESTORE_URL}/${currentUserId}`,
-          {
+    const response =
+      await fetch(
+        updateUrl,
+        {
+          method: "PATCH",
 
-            method: "PATCH",
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
 
-            headers: {
-              "Content-Type":
-                "application/json",
-            },
+          body: JSON.stringify({
+            fields: {
 
-            body: JSON.stringify({
-
-              fields: {
-
-                userId: {
-                  stringValue:
-                    currentUserId,
-                },
-
-                trialStart: {
-                  stringValue:
-                    currentTrialStart,
-                },
-
-                trialStatus: {
-                  stringValue:
-                    currentTrialStatus,
-                },
-
-                userType: {
-                  stringValue:
-                    currentUserType,
-                },
-
-                lastActive: {
-                  stringValue:
-                    new Date().toISOString(),
-                },
-
+              userId: {
+                stringValue:
+                  currentUserId,
               },
 
-            }),
+              trialStart: {
+                stringValue:
+                  currentTrialStart,
+              },
 
-          }
-        );
+              trialStatus: {
+                stringValue:
+                  currentTrialStatus,
+              },
 
+              userType: {
+                stringValue:
+                  currentUserType,
+              },
 
-      if (!response.ok) {
+              lastActive: {
+                stringValue:
+                  new Date().toISOString(),
+              },
 
-        const errorData =
-          await response.json();
+            },
+          }),
+        }
+      );
 
-        console.log(
-          "User Firebase Error:",
-          errorData
-        );
+    if (!response.ok) {
 
-      }
-
-    } catch (error) {
+      const errorText =
+        await response.text();
 
       console.log(
         "User Firebase Error:",
-        error
+        response.status,
+        errorText
       );
 
     }
 
+  } catch (error) {
+
+    console.log(
+      "User Firebase Error:",
+      error
+    );
+
   }
+
+}
 
 
 
