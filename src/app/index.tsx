@@ -165,7 +165,7 @@ Notifications.setNotificationHandler({
 });
 
 
-async async function registerForPushNotificationsAsync() {
+async function registerForPushNotificationsAsync() {
   try {
     Alert.alert(
       "PUSH DIAGNOSTIC",
