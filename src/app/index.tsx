@@ -166,13 +166,11 @@ Notifications.setNotificationHandler({
 
 
 async function registerForPushNotificationsAsync() {
+
   try {
-    Alert.alert(
-      "PUSH DIAGNOSTIC",
-      "1/4 Push registration started."
-    );
 
     if (Platform.OS === "android") {
+
       await Notifications.setNotificationChannelAsync(
         "signals",
         {
@@ -182,80 +180,51 @@ async function registerForPushNotificationsAsync() {
           vibrationPattern: [0, 250, 250, 250],
         }
       );
+
     }
 
     const permission =
       await Notifications.getPermissionsAsync();
 
-    let finalStatus = permission.status;
+    let finalStatus =
+      permission.status;
 
     if (finalStatus !== "granted") {
+
       const requested =
         await Notifications.requestPermissionsAsync();
 
-      finalStatus = requested.status;
+      finalStatus =
+        requested.status;
+
     }
 
     if (finalStatus !== "granted") {
-      Alert.alert(
-        "PUSH DIAGNOSTIC",
-        "2/4 Permission NOT granted.\nStatus: " +
-          finalStatus
-      );
       return null;
     }
-
-    Alert.alert(
-      "PUSH DIAGNOSTIC",
-      "2/4 Permission granted."
-    );
 
     const projectId =
       Constants.expoConfig?.extra?.eas?.projectId ||
       Constants.easConfig?.projectId;
 
     if (!projectId) {
-      Alert.alert(
-        "PUSH TOKEN ERROR",
-        "3/4 EAS projectId is MISSING."
-      );
-      return null;
-    }
 
-    Alert.alert(
-      "PUSH DIAGNOSTIC",
-      "3/4 Project ID found:\n" + projectId
-    );
+      console.log(
+        "Push Token Error: EAS projectId is missing."
+      );
+
+      return null;
+
+    }
 
     const tokenResponse =
       await Notifications.getExpoPushTokenAsync({
         projectId,
       });
 
-    const token = tokenResponse.data || null;
-
-    if (!token) {
-      Alert.alert(
-        "PUSH TOKEN ERROR",
-        "4/4 Expo token was NOT generated."
-      );
-      return null;
-    }
-
-    Alert.alert(
-      "PUSH TOKEN SUCCESS",
-      "4/4 Expo token generated.\n\n" +
-        token.substring(0, 25) +
-        "..."
-    );
-
-    return token;
+    return tokenResponse.data || null;
 
   } catch (error) {
-    Alert.alert(
-      "PUSH TOKEN ERROR",
-      String(error?.message || error)
-    );
 
     console.log(
       "Push Token Registration Error:",
@@ -263,7 +232,9 @@ async function registerForPushNotificationsAsync() {
     );
 
     return null;
+
   }
+
 }
 
 
@@ -274,23 +245,19 @@ async function saveExpoPushTokenToFirestore(
   pushToken,
   notificationEnabled = true
 ) {
+
   if (!userId || !pushToken) {
-    Alert.alert(
-      "FIRESTORE SAVE ERROR",
-      "User ID ya Expo Push Token missing hai."
-    );
     return;
   }
 
   try {
-    const updateUrl =
-      `${USERS_FIRESTORE_URL}/${encodeURIComponent(userId)}` +
-      `?updateMask.fieldPaths=expoPushToken` +
-      `&updateMask.fieldPaths=notificationEnabled` +
-      `&updateMask.fieldPaths=pushTokenUpdatedAt`;
 
-    const response = await fetch(
-      updateUrl,
+    const updateUrl =
+  `${USERS_FIRESTORE_URL}/${encodeURIComponent(userId)}?updateMask.fieldPaths=expoPushToken&updateMask.fieldPaths=notificationEnabled&updateMask.fieldPaths=pushTokenUpdatedAt`;
+
+const response = await fetch(
+  updateUrl,
+      
       {
         method: "PATCH",
         headers: {
@@ -312,57 +279,22 @@ async function saveExpoPushTokenToFirestore(
       }
     );
 
-    const responseText = await response.text();
-
-    if (response.ok) {
-      Alert.alert(
-        "FIRESTORE SAVE SUCCESS",
-        "Expo Push Token Firestore mein save ho gaya.\n\nHTTP: " +
-          response.status
-      );
-
+    if (!response.ok) {
       console.log(
-        "Push Token Firestore SUCCESS:",
-        response.status,
-        responseText
+        "Push Token Firestore Error:",
+        await response.text()
       );
-
-      return true;
     }
 
-    Alert.alert(
-      "FIRESTORE SAVE ERROR",
-      "HTTP: " +
-        response.status +
-        "\n\n" +
-        responseText.substring(0, 1200)
-    );
-
-    console.log(
-      "Push Token Firestore ERROR:",
-      response.status,
-      responseText
-    );
-
-    return false;
-
   } catch (error) {
-    const errorMessage =
-      String(error?.message || error);
-
-    Alert.alert(
-      "FIRESTORE SAVE ERROR",
-      "Network/Fetch Error:\n\n" +
-        errorMessage
-    );
 
     console.log(
       "Push Token Save Error:",
       error
     );
 
-    return false;
   }
+
 }
 
 export default function App() {
