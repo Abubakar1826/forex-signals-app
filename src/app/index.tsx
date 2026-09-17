@@ -274,19 +274,23 @@ async function saveExpoPushTokenToFirestore(
   pushToken,
   notificationEnabled = true
 ) {
-
   if (!userId || !pushToken) {
+    Alert.alert(
+      "FIRESTORE SAVE ERROR",
+      "User ID ya Expo Push Token missing hai."
+    );
     return;
   }
 
   try {
-
     const updateUrl =
-  `${USERS_FIRESTORE_URL}/${encodeURIComponent(userId)}?updateMask.fieldPaths=expoPushToken&updateMask.fieldPaths=notificationEnabled&updateMask.fieldPaths=pushTokenUpdatedAt`;
+      `${USERS_FIRESTORE_URL}/${encodeURIComponent(userId)}` +
+      `?updateMask.fieldPaths=expoPushToken` +
+      `&updateMask.fieldPaths=notificationEnabled` +
+      `&updateMask.fieldPaths=pushTokenUpdatedAt`;
 
-const response = await fetch(
-  updateUrl,
-      
+    const response = await fetch(
+      updateUrl,
       {
         method: "PATCH",
         headers: {
@@ -308,22 +312,57 @@ const response = await fetch(
       }
     );
 
-    if (!response.ok) {
-      console.log(
-        "Push Token Firestore Error:",
-        await response.text()
+    const responseText = await response.text();
+
+    if (response.ok) {
+      Alert.alert(
+        "FIRESTORE SAVE SUCCESS",
+        "Expo Push Token Firestore mein save ho gaya.\n\nHTTP: " +
+          response.status
       );
+
+      console.log(
+        "Push Token Firestore SUCCESS:",
+        response.status,
+        responseText
+      );
+
+      return true;
     }
 
+    Alert.alert(
+      "FIRESTORE SAVE ERROR",
+      "HTTP: " +
+        response.status +
+        "\n\n" +
+        responseText.substring(0, 1200)
+    );
+
+    console.log(
+      "Push Token Firestore ERROR:",
+      response.status,
+      responseText
+    );
+
+    return false;
+
   } catch (error) {
+    const errorMessage =
+      String(error?.message || error);
+
+    Alert.alert(
+      "FIRESTORE SAVE ERROR",
+      "Network/Fetch Error:\n\n" +
+        errorMessage
+    );
 
     console.log(
       "Push Token Save Error:",
       error
     );
 
+    return false;
   }
-
 }
 
 export default function App() {
