@@ -165,12 +165,14 @@ Notifications.setNotificationHandler({
 });
 
 
-async function registerForPushNotificationsAsync() {
-
+async async function registerForPushNotificationsAsync() {
   try {
+    Alert.alert(
+      "PUSH DIAGNOSTIC",
+      "1/4 Push registration started."
+    );
 
     if (Platform.OS === "android") {
-
       await Notifications.setNotificationChannelAsync(
         "signals",
         {
@@ -180,51 +182,80 @@ async function registerForPushNotificationsAsync() {
           vibrationPattern: [0, 250, 250, 250],
         }
       );
-
     }
 
     const permission =
       await Notifications.getPermissionsAsync();
 
-    let finalStatus =
-      permission.status;
+    let finalStatus = permission.status;
 
     if (finalStatus !== "granted") {
-
       const requested =
         await Notifications.requestPermissionsAsync();
 
-      finalStatus =
-        requested.status;
-
+      finalStatus = requested.status;
     }
 
     if (finalStatus !== "granted") {
+      Alert.alert(
+        "PUSH DIAGNOSTIC",
+        "2/4 Permission NOT granted.\nStatus: " +
+          finalStatus
+      );
       return null;
     }
+
+    Alert.alert(
+      "PUSH DIAGNOSTIC",
+      "2/4 Permission granted."
+    );
 
     const projectId =
       Constants.expoConfig?.extra?.eas?.projectId ||
       Constants.easConfig?.projectId;
 
     if (!projectId) {
-
-      console.log(
-        "Push Token Error: EAS projectId is missing."
+      Alert.alert(
+        "PUSH TOKEN ERROR",
+        "3/4 EAS projectId is MISSING."
       );
-
       return null;
-
     }
+
+    Alert.alert(
+      "PUSH DIAGNOSTIC",
+      "3/4 Project ID found:\n" + projectId
+    );
 
     const tokenResponse =
       await Notifications.getExpoPushTokenAsync({
         projectId,
       });
 
-    return tokenResponse.data || null;
+    const token = tokenResponse.data || null;
+
+    if (!token) {
+      Alert.alert(
+        "PUSH TOKEN ERROR",
+        "4/4 Expo token was NOT generated."
+      );
+      return null;
+    }
+
+    Alert.alert(
+      "PUSH TOKEN SUCCESS",
+      "4/4 Expo token generated.\n\n" +
+        token.substring(0, 25) +
+        "..."
+    );
+
+    return token;
 
   } catch (error) {
+    Alert.alert(
+      "PUSH TOKEN ERROR",
+      String(error?.message || error)
+    );
 
     console.log(
       "Push Token Registration Error:",
@@ -232,9 +263,7 @@ async function registerForPushNotificationsAsync() {
     );
 
     return null;
-
   }
-
 }
 
 
