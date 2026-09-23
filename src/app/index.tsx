@@ -677,62 +677,75 @@ export default function App() {
   }
 
 
+ /* CREATE DEVICE-BASED USER ID */
 
-  /* CREATE PERMANENT USER ID */
+async function getOrCreateUserId() {
 
-  async function getOrCreateUserId() {
+  try {
 
-    try {
+    if (Platform.OS === "android") {
 
-      const savedUserId =
-        await AsyncStorage.getItem(
-          USER_ID_STORAGE_KEY
-        );
+      const androidId =
+        Application.getAndroidId();
 
+      if (androidId) {
 
-      if (savedUserId) {
+        const permanentUserId =
+          `android_${androidId}`;
 
         setUserId(
-          savedUserId
+          permanentUserId
         );
 
-        return savedUserId;
-
+        return permanentUserId;
       }
+    }
 
+    /* FALLBACK ONLY */
 
-      const newUserId =
-        `user_${Date.now()}_${Math.random()
-          .toString(36)
-          .substring(2, 10)}`;
-
-
-      await AsyncStorage.setItem(
-        USER_ID_STORAGE_KEY,
-        newUserId
+    const savedUserId =
+      await AsyncStorage.getItem(
+        USER_ID_STORAGE_KEY
       );
 
+    if (savedUserId) {
 
       setUserId(
-        newUserId
+        savedUserId
       );
 
-
-      return newUserId;
-
-    } catch (error) {
-
-      console.log(
-        "User ID Error:",
-        error
-      );
-
-      return "";
-
+      return savedUserId;
     }
+
+    const newUserId =
+      `user_${Date.now()}_${Math.random()
+        .toString(36)
+        .substring(2, 10)}`;
+
+    await AsyncStorage.setItem(
+      USER_ID_STORAGE_KEY,
+      newUserId
+    );
+
+    setUserId(
+      newUserId
+    );
+
+    return newUserId;
+
+  } catch (error) {
+
+    console.log(
+      "User ID Error:",
+      error
+    );
+
+    return "";
 
   }
 
+}
+        
 
 
 
