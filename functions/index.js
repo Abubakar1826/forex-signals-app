@@ -13,6 +13,9 @@ const db = getFirestore();
 const EXPO_PUSH_URL =
   "https://exp.host/--/api/v2/push/send";
 
+const EXPO_RECEIPTS_URL =
+  "https://exp.host/--/api/v2/push/getReceipts";
+
 
 function isEligibleUser(fields) {
   const enabled =
@@ -40,14 +43,12 @@ function isEligibleUser(fields) {
 
 
 async function getExpoTokens() {
-
   const snapshot =
     await db.collection("users").get();
 
   const tokens = new Set();
 
   snapshot.forEach((doc) => {
-
     const fields = doc.data();
 
     const token =
@@ -60,12 +61,13 @@ async function getExpoTokens() {
     ) {
       tokens.add(token);
     }
-
   });
 
   return [...tokens];
 }
 
+
+/* SEND PUSH + CHECK EXPO RECEIPT */
 
 async function sendExpoNotifications(
   tokens,
@@ -73,75 +75,124 @@ async function sendExpoNotifications(
   body,
   data
 ) {
-
   if (!tokens.length) {
     console.log(
-      "No eligible Expo push tokens found."
+      "NO ELIGIBLE EXPO PUSH TOKENS FOUND"
+    );
+    return;
+  }
+
+  const messages =
+    tokens.map((to) => ({
+      to,
+      sound: "default",
+      title,
+      body,
+      priority: "high",
+      channelId: "signals",
+      data,
+    }));
+
+  console.log(
+    "Sending Expo messages:",
+    messages.length
+  );
+
+  const response =
+    await fetch(
+      EXPO_PUSH_URL,
+      {
+        method: "POST",
+
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+
+        body:
+          JSON.stringify(messages),
+      }
+    );
+
+  const result =
+    await response.json();
+
+  console.log(
+    "EXPO TICKET RESPONSE:",
+    JSON.stringify(result)
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      "Expo Push API HTTP " +
+      response.status
+    );
+  }
+
+
+  /* GET TICKET IDS */
+
+  const ticketIds =
+    (result.data || [])
+      .filter(
+        (ticket) =>
+          ticket.status === "ok" &&
+          ticket.id
+      )
+      .map(
+        (ticket) => ticket.id
+      );
+
+
+  if (!ticketIds.length) {
+    console.log(
+      "NO SUCCESSFUL EXPO TICKET IDS."
     );
     return;
   }
 
 
-  for (
-    let i = 0;
-    i < tokens.length;
-    i += 100
-  ) {
+  /* WAIT BEFORE CHECKING RECEIPTS */
 
-    const batch =
-      tokens.slice(i, i + 100);
+  await new Promise(
+    (resolve) =>
+      setTimeout(resolve, 10000)
+  );
 
 
-    const messages =
-      batch.map((to) => ({
-        to,
-        sound: "default",
-        title,
-        body,
-        priority: "high",
-        channelId: "signals",
-        data,
-      }));
+  const receiptResponse =
+    await fetch(
+      EXPO_RECEIPTS_URL,
+      {
+        method: "POST",
 
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
 
-    const response =
-      await fetch(
-        EXPO_PUSH_URL,
-        {
-          method: "POST",
-
-          headers: {
-            Accept:
-              "application/json",
-
-            "Content-Type":
-              "application/json",
-          },
-
-          body:
-            JSON.stringify(messages),
-        }
-      );
-
-
-    const result =
-      await response.json();
-
-
-    console.log(
-      "Expo push response:",
-      response.status,
-      result
+        body: JSON.stringify({
+          ids: ticketIds,
+        }),
+      }
     );
 
 
-    if (!response.ok) {
-      throw new Error(
-        "Expo Push API HTTP " +
-        response.status
-      );
-    }
+  const receiptResult =
+    await receiptResponse.json();
 
+
+  console.log(
+    "EXPO RECEIPT RESPONSE:",
+    JSON.stringify(receiptResult)
+  );
+
+
+  if (!receiptResponse.ok) {
+    throw new Error(
+      "Expo Receipt API HTTP " +
+      receiptResponse.status
+    );
   }
 }
 
@@ -165,7 +216,6 @@ exports.onNewSignal =
       const signal =
         snapshot.data();
 
-
       if (
         String(signal.status || "")
           .toUpperCase() !== "OPEN"
@@ -176,13 +226,10 @@ exports.onNewSignal =
         return;
       }
 
-
       const tokens =
         await getExpoTokens();
 
-
       await sendExpoNotifications(
-
         tokens,
 
         "🔔 NEW SIGNAL — FOREX SIGNALS 800 PIPS",
@@ -206,9 +253,7 @@ exports.onNewSignal =
           entry:
             signal.entry || "",
         }
-
       );
-
     }
   );
 
@@ -228,34 +273,26 @@ exports.onSignalClosed =
       const after =
         event.data?.after?.data();
 
-
       if (!before || !after) {
         return;
       }
-
 
       const wasClosed =
         String(before.status || "")
           .toUpperCase() === "CLOSED";
 
-
       const isClosed =
         String(after.status || "")
           .toUpperCase() === "CLOSED";
 
-
-      // Prevent duplicate notification
       if (wasClosed || !isClosed) {
         return;
       }
 
-
       const tokens =
         await getExpoTokens();
 
-
       await sendExpoNotifications(
-
         tokens,
 
         "🔔 SIGNAL CLOSED — FOREX SIGNALS 800 PIPS",
@@ -280,8 +317,6 @@ exports.onSignalClosed =
           closedPrice:
             after.closedPrice || "",
         }
-
       );
-
     }
   );
