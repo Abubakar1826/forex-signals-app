@@ -2388,11 +2388,6 @@ async function saveUserToFirestore(
 
 
 
-          <View
-            style={
-              styles.settingRow
-            }
-          >
 
             <TouchableOpacity
   style={
