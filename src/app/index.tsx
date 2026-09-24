@@ -2394,28 +2394,53 @@ async function saveUserToFirestore(
             }
           >
 
-            <View>
+            <TouchableOpacity
+  style={
+    styles.settingRow
+  }
+  onPress={() =>
+    Alert.alert(
+      "NOTIFICATION DELAY",
+      "If notifications are delayed or do not arrive when the app is in the background or closed, please check these Android settings:\n\n" +
 
-              <Text
-                style={
-                  styles.settingTitle
-                }
-              >
-                Notification Delay
-              </Text>
+      "1. ALLOW NOTIFICATIONS\n" +
+      "Open Android Settings → Apps → FOREX SIGNALS 800 PIPS → Notifications and make sure notifications are ON.\n\n" +
 
+      "2. CHECK BATTERY SETTINGS\n" +
+      "Open Android Settings → Apps → FOREX SIGNALS 800 PIPS → Battery. If Battery Optimization or Background restriction is available, allow the app to run in the background.\n\n" +
 
-              <Text
-                style={
-                  styles.settingDescription
-                }
-              >
-                Signal updates are checked every 30 seconds.
-              </Text>
+      "3. REMOVE BACKGROUND RESTRICTION\n" +
+      "If Background restriction is enabled, remove the restriction for FOREX SIGNALS 800 PIPS.\n\n" +
 
-            </View>
+      "4. CHECK BATTERY SAVER\n" +
+      "Battery Saver or Power Saving Mode may delay notifications. Turn it off if notifications are being delayed.\n\n" +
 
-          </View>
+      "5. CHECK PHONE-SPECIFIC SETTINGS\n" +
+      "Some Android phones have additional settings such as Auto-start, Background activity, Battery optimization, or App launch. Allow FOREX SIGNALS 800 PIPS to run normally.\n\n" +
+
+      "IMPORTANT\n" +
+      "Android settings can be different on different phone brands and Android versions. If notifications work when the app is open but not in the background, battery or background restrictions may be the cause."
+    )
+  }
+>
+  <View>
+    <Text
+      style={
+        styles.settingTitle
+      }
+    >
+      Notification Delay
+    </Text>
+
+    <Text
+      style={
+        styles.settingDescription
+      }
+    >
+      Notifications delayed? Tap here for help.
+    </Text>
+  </View>
+</TouchableOpacity>
 
 
 
