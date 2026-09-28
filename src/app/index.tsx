@@ -2787,12 +2787,12 @@ async function saveUserToFirestore(
         </Text>
 
 
-        <Text
+                <Text
           style={
             styles.sectionTitle
           }
         >
-          MONEY MANAGEMENT
+          IMPORTANT INFORMATION
         </Text>
 
 
@@ -2801,7 +2801,7 @@ async function saveUserToFirestore(
             styles.paragraph
           }
         >
-          Follow strict money management. As a general guideline, use 0.01 lot size for every $500 equity or more.
+          FOREX SIGNALS 800 PIPS provides Forex market signals and information. The app does not execute trades, manage trading accounts, or hold customer funds.
         </Text>
 
 
@@ -2819,7 +2819,7 @@ async function saveUserToFirestore(
             styles.paragraph
           }
         >
-          Forex trading involves significant risk. Trade only with money you can afford to lose.
+          Forex trading involves significant risk. Trade only with money you can afford to lose. Users are responsible for their own trading decisions.
         </Text>
 
       </InfoPage>
