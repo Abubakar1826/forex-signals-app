@@ -39,6 +39,7 @@
           
       
      "expo-image",
+      "expo-iap",
       "expo-web-browser"
     ],
     "experiments": {
