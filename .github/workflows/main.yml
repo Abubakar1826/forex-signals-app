@@ -33,6 +33,11 @@ jobs:
       - name: Generate Android project
         run: npx expo prebuild --platform android --clean --no-install
 
+      - name: Verify Google Play Billing permission
+        run: |
+          grep -q 'com.android.vending.BILLING' android/app/src/main/AndroidManifest.xml
+          echo "Google Play Billing permission found."
+          
       - name: Build APK
         run: |
           cd android
