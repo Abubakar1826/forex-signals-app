@@ -16,6 +16,7 @@ import * as Notifications from "expo-notifications";
 import Constants from "expo-constants";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Application from "expo-application";
+import { useIAP } from "expo-iap";
 
 
 const GOLD = "#D4AF37";
