@@ -285,3 +285,6 @@ exports.onSignalClosed =
 
     }
   );
+
+exports.verifyPlaySubscription =
+  require("./billing").verifyPlaySubscription;
