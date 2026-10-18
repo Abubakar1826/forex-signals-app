@@ -17,9 +17,12 @@
   "versionCode": 4,
   "predictiveBackGestureEnabled": false,
   "googleServicesFile": "./google-services.json",
-  "package": "com.abubakar1826.forexsignals"
-}, 
-    "web": {
+  "package": "com.abubakar1826.forexsignals",
+"permissions": [
+  "com.android.vending.BILLING"
+]
+},
+"web": {
       "output": "static",
       "favicon": "./assets/images/favicon.png"
     },
