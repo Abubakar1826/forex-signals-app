@@ -2855,17 +2855,7 @@ async function saveUserToFirestore(
             styles.goldButton
           }
 
-          onPress={() =>
-
-            Alert.alert(
-
-              "PREMIUM MEMBERSHIP",
-
-              "Google Play subscription system will be connected in the final production version."
-
-            )
-
-          }
+          onPress={handlePremiumPurchase}
 
         >
 
