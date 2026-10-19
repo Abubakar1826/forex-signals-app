@@ -18,6 +18,27 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Application from "expo-application";
 import { useIAP } from "expo-iap";
 
+import { initializeApp, getApps } from "firebase/app";
+import { getAuth, signInAnonymously } from "firebase/auth";
+import { getFunctions, httpsCallable } from "firebase/functions";
+
+
+
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyAojFzYaRCwVhdwfqCrrLlBMh2J-AR3dSk",
+  projectId: "forex-signals-800-pips",
+  appId: "1:2602953786:android:b59650b38e1622ec951903",
+  messagingSenderId: "2602953786",
+  authDomain: "forex-signals-800-pips.firebaseapp.com",
+};
+
+const firebaseApp =
+  getApps().length > 0
+    ? getApps()[0]
+    : initializeApp(FIREBASE_CONFIG);
+
+const firebaseAuth = getAuth(firebaseApp);
+const firebaseFunctions = getFunctions(firebaseApp);
 
 const GOLD = "#D4AF37";
 const FIRESTORE_PROJECT_ID = "forex-signals-800-pips";
