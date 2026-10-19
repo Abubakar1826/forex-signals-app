@@ -453,6 +453,76 @@ export default function App() {
   });
 
 
+  
+  async function handlePremiumPurchase() {
+    if (Platform.OS !== "android") {
+      Alert.alert(
+        "PREMIUM MEMBERSHIP",
+        "Google Play billing is available in the Android app."
+      );
+      return;
+    }
+
+    if (!billingConnected) {
+      Alert.alert(
+        "GOOGLE PLAY NOT READY",
+        "Please wait for Google Play billing to connect, then try again."
+      );
+      return;
+    }
+
+    try {
+      await fetchBillingProducts({
+        skus: ["premium_monthly"],
+        type: "subs",
+      });
+
+      const subscription = billingSubscriptions.find(
+        (item) => item.id === "premium_monthly"
+      );
+
+      if (!subscription) {
+        Alert.alert(
+          "SUBSCRIPTION NOT AVAILABLE",
+          "The premium_monthly product has not loaded yet. Please try again after the product is configured in Google Play Console."
+        );
+        return;
+      }
+
+      const offers = (
+        subscription.subscriptionOfferDetailsAndroid ?? []
+      )
+        .filter((offer) => Boolean(offer.offerToken))
+        .map((offer) => ({
+          sku: "premium_monthly",
+          offerToken: offer.offerToken,
+        }));
+
+      if (offers.length === 0) {
+        Alert.alert(
+          "OFFER NOT AVAILABLE",
+          "The monthly subscription offer is not available yet. Please configure the base plan in Google Play Console."
+        );
+        return;
+      }
+
+      await requestBillingPurchase({
+        request: {
+          google: {
+            skus: ["premium_monthly"],
+            subscriptionOffers: offers,
+          },
+        },
+        type: "subs",
+      });
+    } catch (error) {
+      console.log("Start premium purchase error:", error);
+      Alert.alert(
+        "PREMIUM MEMBERSHIP",
+        "Could not start Google Play billing. Please try again later."
+      );
+    }
+  }
 
   const scrollRef = useRef(null);
 
