@@ -321,6 +321,13 @@ const response = await fetch(
 }
 
 export default function App() {
+  
+  useEffect(() => {
+    signInAnonymously(firebaseAuth).catch((error) => {
+      console.log("Firebase Auth Error:", error);
+    });
+  }, []);
+
 
   const [activeTab, setActiveTab] = useState(0);
 
