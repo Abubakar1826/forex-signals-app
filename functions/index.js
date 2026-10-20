@@ -288,3 +288,5 @@ exports.onSignalClosed =
 
 exports.verifyPlaySubscription =
   require("./billing").verifyPlaySubscription;
+exports.getPremiumStatus =
+  require("./billing").getPremiumStatus;
