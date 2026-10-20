@@ -179,3 +179,35 @@ exports.verifyPlaySubscription = onCall(
     }
   }
 );
+exports.getPremiumStatus = onCall(
+  async (request) => {
+    if (!request.auth) {
+      throw new HttpsError(
+        "unauthenticated",
+        "Please sign in first."
+      );
+    }
+
+    const snapshot = await db
+      .collection("premiumEntitlements")
+      .doc(request.auth.uid)
+      .get();
+
+    if (!snapshot.exists) {
+      return { premiumActive: false };
+    }
+
+    const entitlement = snapshot.data();
+
+    const expiry = entitlement.expiryTime
+      ? Date.parse(entitlement.expiryTime)
+      : 0;
+
+    const premiumActive =
+      entitlement.premiumStatus === "ACTIVE" &&
+      Number.isFinite(expiry) &&
+      expiry > Date.now();
+
+    return { premiumActive };
+  }
+);
