@@ -1192,17 +1192,37 @@ async function saveUserToFirestore(
       const isTrialActive =
         daysPassed < TRIAL_DAYS;
 
+      let premiumActive = false;
 
-      const currentTrialStatus =
-        isTrialActive
-          ? "ACTIVE"
-          : "EXPIRED";
+try {
+  const checkPremium = httpsCallable(
+    firebaseFunctions,
+    "getPremiumStatus"
+  );
+
+  const premiumResponse = await checkPremium({});
+
+  premiumActive = Boolean(
+    (premiumResponse.data as {
+      premiumActive?: boolean;
+    }).premiumActive
+  );
+} catch (error) {
+  console.log("Premium status check error:", error);
+}
 
 
-      const currentUserType =
-        isTrialActive
-          ? "TRIAL"
-          : "EXPIRED";
+     const currentTrialStatus =
+  premiumActive || isTrialActive
+    ? "ACTIVE"
+    : "EXPIRED";
+
+const currentUserType =
+  premiumActive
+    ? "PREMIUM"
+    : isTrialActive
+      ? "TRIAL"
+      : "EXPIRED";
 
 
       setTrialStart(
@@ -1214,8 +1234,8 @@ async function saveUserToFirestore(
       );
 
       setTrialActive(
-        isTrialActive
-      );
+  isTrialActive && !premiumActive
+);
 
       setUserType(
         currentUserType
