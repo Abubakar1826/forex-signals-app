@@ -322,11 +322,31 @@ const response = await fetch(
 
 export default function App() {
   
-  useEffect(() => {
-    signInAnonymously(firebaseAuth).catch((error) => {
+  
+useEffect(() => {
+  let cancelled = false;
+
+  async function initializeUserSession() {
+    try {
+      if (!firebaseAuth.currentUser) {
+        await signInAnonymously(firebaseAuth);
+      }
+
+      if (!cancelled) {
+        await setupTrialSystem();
+      }
+    } catch (error) {
       console.log("Firebase Auth Error:", error);
-    });
-  }, []);
+    }
+  }
+
+  initializeUserSession();
+
+  return () => {
+    cancelled = true;
+  };
+}, []);
+
 
 
   const [activeTab, setActiveTab] = useState(0);
@@ -1262,13 +1282,6 @@ const currentUserType =
 
   }
 
-
-
-  useEffect(() => {
-
-    setupTrialSystem();
-
-  }, []);
 
 
 
