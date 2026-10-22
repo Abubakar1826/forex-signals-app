@@ -2734,6 +2734,99 @@ const currentUserType =
 
         </ScrollView>
 
+        
+        <Modal
+          visible={reviewerModalVisible}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setReviewerModalVisible(false)}
+        >
+          <View
+            style={{
+              flex: 1,
+              backgroundColor: "rgba(0,0,0,0.75)",
+              justifyContent: "center",
+              padding: 24,
+            }}
+          >
+            <View
+              style={{
+                backgroundColor: "#171717",
+                borderRadius: 16,
+                padding: 22,
+                borderWidth: 1,
+                borderColor: GOLD,
+              }}
+            >
+              <Text
+                style={{
+                  color: GOLD,
+                  fontSize: 18,
+                  fontWeight: "bold",
+                  marginBottom: 10,
+                }}
+              >
+                GOOGLE REVIEWER ACCESS
+              </Text>
+
+              <Text
+                style={{
+                  color: "#FFFFFF",
+                  marginBottom: 16,
+                  lineHeight: 21,
+                }}
+              >
+                Enter the reviewer access code provided for Google Play review.
+              </Text>
+
+              <TextInput
+                value={reviewerCode}
+                onChangeText={setReviewerCode}
+                placeholder="Enter access code"
+                placeholderTextColor="#888888"
+                autoCapitalize="characters"
+                autoCorrect={false}
+                editable={!reviewerCodeLoading}
+                style={{
+                  color: "#FFFFFF",
+                  borderColor: "#777777",
+                  borderWidth: 1,
+                  borderRadius: 8,
+                  paddingHorizontal: 12,
+                  paddingVertical: 12,
+                  marginBottom: 16,
+                }}
+              />
+
+              <TouchableOpacity
+                style={[
+                  styles.testButton,
+                  reviewerCodeLoading && { opacity: 0.6 },
+                ]}
+                disabled={reviewerCodeLoading}
+                onPress={submitReviewerAccessCode}
+              >
+                {reviewerCodeLoading ? (
+                  <ActivityIndicator color={GOLD} />
+                ) : (
+                  <Text style={styles.testButtonText}>
+                    ACTIVATE REVIEW ACCESS
+                  </Text>
+                )}
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={{ padding: 12, alignItems: "center" }}
+                disabled={reviewerCodeLoading}
+                onPress={() => setReviewerModalVisible(false)}
+              >
+                <Text style={{ color: "#FFFFFF" }}>CANCEL</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+
+
       </View>
 
     );
