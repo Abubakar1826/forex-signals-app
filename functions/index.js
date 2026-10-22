@@ -290,3 +290,5 @@ exports.verifyPlaySubscription =
   require("./billing").verifyPlaySubscription;
 exports.getPremiumStatus =
   require("./billing").getPremiumStatus;
+exports.activateReviewerAccess =
+  require("./billing").activateReviewerAccess;
