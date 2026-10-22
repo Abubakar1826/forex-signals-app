@@ -10,6 +10,9 @@ import {
   Share,
   Alert,
   Platform,
+    Modal,
+  TextInput,
+  ActivityIndicator,
 } from "react-native";
 
 import * as Notifications from "expo-notifications";
