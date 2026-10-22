@@ -398,7 +398,47 @@ useEffect(() => {
 
   const [userType, setUserType] =
     useState("TRIAL");
-  
+
+    const [reviewerModalVisible, setReviewerModalVisible] = useState(false);
+  const [reviewerCode, setReviewerCode] = useState("");
+  const [reviewerCodeLoading, setReviewerCodeLoading] = useState(false);
+    async function submitReviewerAccessCode() {
+    const code = reviewerCode.trim();
+
+    if (!code) {
+      Alert.alert("REVIEWER ACCESS", "Please enter the reviewer access code.");
+      return;
+    }
+
+    setReviewerCodeLoading(true);
+
+    try {
+      const activateReviewerAccess = httpsCallable(
+        firebaseFunctions,
+        "activateReviewerAccess"
+      );
+
+      await activateReviewerAccess({ code });
+
+      setReviewerModalVisible(false);
+      setReviewerCode("");
+      setTrialActive(false);
+      setUserType("PREMIUM");
+
+      Alert.alert(
+        "REVIEWER ACCESS ACTIVATED",
+        "Premium review access is now active."
+      );
+    } catch (error) {
+      console.log("Reviewer access activation error:", error);
+      Alert.alert(
+        "CODE NOT ACCEPTED",
+        "The reviewer access code was not accepted. Please check the code and try again."
+      );
+    } finally {
+      setReviewerCodeLoading(false);
+    }
+  }
   const {
     connected: billingConnected,
     subscriptions: billingSubscriptions,
