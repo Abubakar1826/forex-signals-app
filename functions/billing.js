@@ -211,3 +211,60 @@ exports.getPremiumStatus = onCall(
     return { premiumActive };
   }
 );
+
+
+/*
+ * Google Play reviewer access.
+ * The access code is stored in Firebase Secret Manager,
+ * never in the app source code.
+ */
+
+const { defineSecret } = require("firebase-functions/params");
+
+const REVIEWER_ACCESS_CODE = defineSecret("REVIEWER_ACCESS_CODE");
+
+exports.activateReviewerAccess = onCall(
+  { secrets: [REVIEWER_ACCESS_CODE] },
+  async (request) => {
+    if (!request.auth) {
+      throw new HttpsError(
+        "unauthenticated",
+        "Please open the app and try again."
+      );
+    }
+
+    const submittedCode = request.data?.code;
+    const expectedCode = REVIEWER_ACCESS_CODE.value();
+
+    if (
+      typeof submittedCode !== "string" ||
+      submittedCode.length < 8 ||
+      submittedCode.length > 128 ||
+      submittedCode !== expectedCode
+    ) {
+      throw new HttpsError(
+        "permission-denied",
+        "Reviewer access code is invalid."
+      );
+    }
+
+    await db
+      .collection("premiumEntitlements")
+      .doc(request.auth.uid)
+      .set(
+        {
+          uid: request.auth.uid,
+          reviewerAccess: true,
+          reviewerAccessGrantedAt: FieldValue.serverTimestamp(),
+          updatedAt: FieldValue.serverTimestamp(),
+        },
+        { merge: true }
+      );
+
+    return {
+      success: true,
+      premiumActive: true,
+      reviewerAccess: true,
+    };
+  }
+);
