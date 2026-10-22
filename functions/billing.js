@@ -203,12 +203,15 @@ exports.getPremiumStatus = onCall(
       ? Date.parse(entitlement.expiryTime)
       : 0;
 
-    const premiumActive =
+        const reviewerAccess = entitlement.reviewerAccess === true;
+
+    const premiumActive = reviewerAccess || (
       entitlement.premiumStatus === "ACTIVE" &&
       Number.isFinite(expiry) &&
-      expiry > Date.now();
+      expiry > Date.now()
+    );
 
-    return { premiumActive };
+    return { premiumActive, reviewerAccess };
   }
 );
 
