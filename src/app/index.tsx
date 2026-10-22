@@ -2719,7 +2719,18 @@ const currentUserType =
             </View>
 
           </View>
-
+          
+          <TouchableOpacity
+            style={styles.testButton}
+            onPress={() => {
+              setReviewerCode("");
+              setReviewerModalVisible(true);
+            }}
+          >
+            <Text style={styles.testButtonText}>
+              🔐 GOOGLE REVIEWER ACCESS
+            </Text>
+          </TouchableOpacity>
 
         </ScrollView>
 
