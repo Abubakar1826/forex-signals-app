@@ -4202,7 +4202,7 @@ const currentUserType =
           >
 
 
-            {!trialActive ? (
+            {!trialActive && userType !== "PREMIUM" ? (
 
               <View
                 style={
