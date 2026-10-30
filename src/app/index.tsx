@@ -546,10 +546,7 @@ useEffect(() => {
     }
 
     try {
-      await fetchBillingProducts({
-        skus: ["premium_monthly"],
-        type: "subs",
-      });
+    
 
       const subscription = billingSubscriptions.find(
         (item) => item.id === "premium_monthly"
