@@ -516,6 +516,17 @@ useEffect(() => {
   });
 
 
+  // Fetch subscription details when Google Play billing connects.
+  useEffect(() => {
+    if (!billingConnected) return;
+
+    fetchBillingProducts({
+      skus: ["premium_monthly"],
+      type: "subs",
+    }).catch((error) => {
+      console.log("Subscription product fetch error:", error);
+    });
+  }, [billingConnected]);
   
   async function handlePremiumPurchase() {
     if (Platform.OS !== "android") {
