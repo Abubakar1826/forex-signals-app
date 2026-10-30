@@ -561,10 +561,17 @@ useEffect(() => {
           offerToken: offer.offerToken,
         }));
 
-      if (offers.length === 0) {
+            if (offers.length === 0) {
+        const offerDetails =
+          subscription.subscriptionOfferDetailsAndroid ?? [];
+
+        const offerSummary = offerDetails.map((offer, index) =>
+          `${index + 1}. Base plan: ${offer.basePlanId || "missing"}\nOffer ID: ${offer.offerId || "base plan"}\nToken: ${offer.offerToken ? "YES" : "NO"}`
+        ).join("\n\n");
+
         Alert.alert(
-          "OFFER NOT AVAILABLE",
-          "The monthly subscription offer is not available yet. Please configure the base plan in Google Play Console."
+          "PLAY BILLING DIAGNOSTIC",
+          `Product: ${subscription.id}\nOffer details: ${offerDetails.length}\n\n${offerSummary || "Google Play returned zero offer details."}`
         );
         return;
       }
