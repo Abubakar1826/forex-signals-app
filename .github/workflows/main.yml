@@ -29,7 +29,8 @@ jobs:
           packages: 'platform-tools'
       - name: Install dependencies
         run: npm install
-
+      - name: Check Expo IAP version
+        run: npm ls expo-iap && node -p "require('expo-iap/package.json').version"
       - name: Generate Android project
         run: npx expo prebuild --platform android --clean --no-install
 
