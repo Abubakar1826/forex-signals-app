@@ -560,7 +560,17 @@ useEffect(() => {
         return;
       }
 
-      const offers = (
+            // Prefer current OpenIAP offer fields, with legacy fallback.
+      const currentOffers = subscription.subscriptionOffers ?? [];
+
+      const offersFromCurrentApi = currentOffers
+        .filter((offer) => Boolean(offer.offerTokenAndroid))
+        .map((offer) => ({
+          sku: "premium_monthly",
+          offerToken: offer.offerTokenAndroid,
+        }));
+
+      const legacyOffers = (
         subscription.subscriptionOfferDetailsAndroid ?? []
       )
         .filter((offer) => Boolean(offer.offerToken))
@@ -569,17 +579,21 @@ useEffect(() => {
           offerToken: offer.offerToken,
         }));
 
-            if (offers.length === 0) {
-        const offerDetails =
-          subscription.subscriptionOfferDetailsAndroid ?? [];
+      const offers =
+        offersFromCurrentApi.length > 0
+          ? offersFromCurrentApi
+          : legacyOffers;
 
-        const offerSummary = offerDetails.map((offer, index) =>
-          `${index + 1}. Base plan: ${offer.basePlanId || "missing"}\nOffer ID: ${offer.offerId || "base plan"}\nToken: ${offer.offerToken ? "YES" : "NO"}`
-        ).join("\n\n");
-
+      if (offers.length === 0) {
         Alert.alert(
           "PLAY BILLING DIAGNOSTIC",
-          `Product: ${subscription.id}\nOffer details: ${offerDetails.length}\n\n${offerSummary || "Google Play returned zero offer details."}`
+          `Product: ${subscription.id}
+Product status: ${subscription.productStatusAndroid || "not provided"}
+Current offers: ${currentOffers.length}
+Legacy offers: ${
+            subscription.subscriptionOfferDetailsAndroid?.length ?? 0
+          }
+No offer token was returned by either API field.`
         );
         return;
       }
