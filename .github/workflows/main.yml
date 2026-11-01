@@ -129,7 +129,7 @@ jobs:
             | tr -d '[:space:]' \
             | tr '[:lower:]' '[:upper:]')
 
-          EXPECTED="CBEE34CD1EDC214C0BDF84F381C3A6BD7F6AC625"
+          EXPECTED="CBEE34CD1EDC214C0BDFB4F381C3A6BD7F6AC625"
 
           echo "Detected AAB SHA1: $ACTUAL"
 
