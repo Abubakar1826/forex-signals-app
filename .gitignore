@@ -5,6 +5,5 @@ src/app/index.tsx.backup-before-new
 src/app/index.tsx.before-sync
 node_modules
 .expo
-google-services.json
 index.tsx
 dist/
