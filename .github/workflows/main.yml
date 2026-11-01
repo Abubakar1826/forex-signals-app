@@ -1,3 +1,4 @@
+
 name: Build Android AAB
 
 on:
@@ -8,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Setup Node.js
@@ -24,15 +25,15 @@ jobs:
           java-version: '17'
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v4
-        with:
-          packages: 'platform-tools'
+        uses: android-actions/setup-android@v3
 
       - name: Install dependencies
         run: npm install
 
       - name: Check Expo IAP version
-        run: npm ls expo-iap && node -p "require('expo-iap/package.json').version"
+        run: |
+          npm ls expo-iap
+          node -p "require('expo-iap/package.json').version"
 
       - name: Generate Android project
         run: npx expo prebuild --platform android --clean --no-install
@@ -42,11 +43,84 @@ jobs:
           grep -q 'com.android.vending.BILLING' android/app/src/main/AndroidManifest.xml
           echo "Google Play Billing permission found."
 
-      - name: Build Android App Bundle
+      - name: Configure original Google Play upload key
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
+          set -euo pipefail
+
+          test -n "$ANDROID_KEYSTORE_BASE64"
+          test -n "$ANDROID_KEYSTORE_PASSWORD"
+          test -n "$ANDROID_KEY_ALIAS"
+          test -n "$ANDROID_KEY_PASSWORD"
+
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" \
+            | base64 --decode > android/app/upload-keystore.jks
+
+          chmod 600 android/app/upload-keystore.jks
+
+          keytool -list \
+            -keystore android/app/upload-keystore.jks \
+            -storepass "$ANDROID_KEYSTORE_PASSWORD" \
+            -alias "$ANDROID_KEY_ALIAS" > /dev/null
+
+          cat > android/app/ci-signing.gradle <<'GRADLE'
+          android {
+            signingConfigs {
+              release {
+                storeFile file("upload-keystore.jks")
+                storePassword System.getenv("ANDROID_KEYSTORE_PASSWORD")
+                keyAlias System.getenv("ANDROID_KEY_ALIAS")
+                keyPassword System.getenv("ANDROID_KEY_PASSWORD")
+              }
+            }
+
+            buildTypes {
+              release {
+                signingConfig signingConfigs.release
+              }
+            }
+          }
+          GRADLE
+
+          echo 'apply from: "./ci-signing.gradle"' >> android/app/build.gradle
+
+      - name: Build Android App Bundle
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
           cd android
           chmod +x gradlew
-          ./gradlew bundleRelease
+          ./gradlew app:bundleRelease
+
+      - name: Verify AAB upload-key fingerprint
+        run: |
+          set -euo pipefail
+
+          AAB="android/app/build/outputs/bundle/release/app-release.aab"
+
+          test -f "$AAB"
+          jarsigner -verify "$AAB"
+
+          ACTUAL=$(keytool -printcert -jarfile "$AAB" \
+            | awk -F': ' '/SHA1:/{print $2; exit}' \
+            | tr -d '[:space:]' \
+            | tr '[:lower:]' '[:upper:]')
+
+          EXPECTED="CBEE34CD1EDC214C0BDF84F381C3A6BD7F6AC625"
+
+          if [ "$ACTUAL" != "$EXPECTED" ]; then
+            echo "::error::AAB upload-key fingerprint does not match the original Play Console key."
+            exit 1
+          fi
+
+          echo "Original Google Play upload-key verified."
 
       - name: Upload AAB
         uses: actions/upload-artifact@v4
