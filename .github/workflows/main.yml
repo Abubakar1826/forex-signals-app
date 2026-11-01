@@ -79,8 +79,10 @@ jobs:
             exit 1
           fi
 
-          echo "Creating Gradle signing configuration..."
-          cat > android/app/ci-signing.gradle <<'GRADLE'
+          
+          echo "Adding signing configuration directly to app/build.gradle..."
+          cat >> android/app/build.gradle <<'GRADLE'
+
           android {
             signingConfigs {
               release {
@@ -98,8 +100,8 @@ jobs:
           }
           GRADLE
 
-          echo 'apply from: "./ci-signing.gradle"' >> android/app/build.gradle
-          echo "Signing configuration created."
+          echo "Signing configuration added."
+
 
 
       - name: Build Android App Bundle
