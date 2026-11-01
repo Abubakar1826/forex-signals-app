@@ -131,7 +131,7 @@ jobs:
 
           EXPECTED="CBEE34CD1EDC214C0BDF84F381C3A6BD7F6AC625"
 
-        echo "Detected AAB SHA1: $ACTUAL"
+          echo "Detected AAB SHA1: $ACTUAL"
 
           if [ "$ACTUAL" != "$EXPECTED" ]; then
             echo "::error::AAB upload-key fingerprint does not match the original Play Console key."
