@@ -45,6 +45,7 @@ jobs:
           grep -q 'com.android.vending.BILLING' android/app/src/main/AndroidManifest.xml
           echo "Google Play Billing permission found."
 
+      
       - name: Configure original Google Play upload key
         env:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
@@ -54,21 +55,31 @@ jobs:
         run: |
           set -euo pipefail
 
-          test -n "$ANDROID_KEYSTORE_BASE64"
-          test -n "$ANDROID_KEYSTORE_PASSWORD"
-          test -n "$ANDROID_KEY_ALIAS"
-          test -n "$ANDROID_KEY_PASSWORD"
+          echo "Checking required GitHub Secrets..."
+          test -n "$ANDROID_KEYSTORE_BASE64" || { echo "Missing Base64 secret"; exit 1; }
+          test -n "$ANDROID_KEYSTORE_PASSWORD" || { echo "Missing keystore password"; exit 1; }
+          test -n "$ANDROID_KEY_ALIAS" || { echo "Missing key alias"; exit 1; }
+          test -n "$ANDROID_KEY_PASSWORD" || { echo "Missing key password"; exit 1; }
 
-          printf '%s' "$ANDROID_KEYSTORE_BASE64" \
-            | base64 --decode > android/app/upload-keystore.jks
-
+          echo "Decoding keystore..."
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > android/app/upload-keystore.jks
           chmod 600 android/app/upload-keystore.jks
 
-          keytool -list \
-            -keystore android/app/upload-keystore.jks \
-            -storepass "$ANDROID_KEYSTORE_PASSWORD" \
-            -alias "$ANDROID_KEY_ALIAS" > /dev/null
+          echo "Checking keystore file..."
+          test -s android/app/upload-keystore.jks || { echo "Keystore file is empty"; exit 1; }
+          file android/app/upload-keystore.jks
 
+          echo "Verifying keystore password and alias..."
+          if keytool -list -keystore android/app/upload-keystore.jks \
+            -storepass "$ANDROID_KEYSTORE_PASSWORD" \
+            -alias "$ANDROID_KEY_ALIAS" > /dev/null 2>&1; then
+            echo "Keystore password and alias verified."
+          else
+            echo "Keystore verification failed. Check the saved password and alias against the EAS credentials file."
+            exit 1
+          fi
+
+          echo "Creating Gradle signing configuration..."
           cat > android/app/ci-signing.gradle <<'GRADLE'
           android {
             signingConfigs {
@@ -79,7 +90,6 @@ jobs:
                 keyPassword System.getenv("ANDROID_KEY_PASSWORD")
               }
             }
-
             buildTypes {
               release {
                 signingConfig signingConfigs.release
@@ -89,6 +99,8 @@ jobs:
           GRADLE
 
           echo 'apply from: "./ci-signing.gradle"' >> android/app/build.gradle
+          echo "Signing configuration created."
+
 
       - name: Build Android App Bundle
         env:
