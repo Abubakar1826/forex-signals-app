@@ -125,9 +125,10 @@ jobs:
           jarsigner -verify "$AAB"
 
           ACTUAL=$(keytool -printcert -jarfile "$AAB" \
-            | awk -F': ' '/SHA1:/{print $2; exit}' \
-            | tr -d '[:space:]' \
-            | tr '[:lower:]' '[:upper:]')
+          | awk -F': ' '/SHA1:/{print $2; exit}' \
+          | sed 's/://g' \
+          | tr -d '[:space:]' \
+          | tr '[:lower:]' '[:upper:]')
 
           EXPECTED="CBEE34CD1EDC214C0BDFB4F381C3A6BD7F6AC625"
 
