@@ -599,6 +599,39 @@ useEffect(() => {
     }
   }
 
+    useEffect(() => {
+    if (!billingConnected) return;
+
+    getBillingAvailablePurchases().catch((error) => {
+      console.log(
+        "Existing purchase restore error:",
+        error
+      );
+    });
+  }, [billingConnected, getBillingAvailablePurchases]);
+
+  useEffect(() => {
+    if (
+      !billingConnected ||
+      billingAvailablePurchases.length === 0
+    ) {
+      return;
+    }
+
+    const existingPurchase = billingAvailablePurchases.find(
+      (purchase: any) =>
+        purchase.productId === "premium_monthly" &&
+        Boolean(purchase.purchaseToken)
+    );
+
+    if (existingPurchase) {
+      verifyAndFinishPlayPurchase(
+        existingPurchase,
+        false
+      );
+    }
+  }, [billingAvailablePurchases, billingConnected]);
+  
   // Fetch subscription details when Google Play billing connects.
   useEffect(() => {
     if (!billingConnected) return;
