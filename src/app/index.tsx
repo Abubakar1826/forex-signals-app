@@ -516,7 +516,88 @@ useEffect(() => {
       }
     },
   });
+    const processingPurchaseTokens = useRef(new Set<string>());
 
+  const [purchaseBusy, setPurchaseBusy] = useState(false);
+
+  async function verifyAndFinishPlayPurchase(
+    purchase: any,
+    showMessage: boolean
+  ) {
+    const token = purchase?.purchaseToken;
+
+    if (
+      !token ||
+      purchase?.productId !== "premium_monthly"
+    ) {
+      console.log("Purchase details missing.");
+      return;
+    }
+
+    if (processingPurchaseTokens.current.has(token)) {
+      return;
+    }
+
+    processingPurchaseTokens.current.add(token);
+
+    try {
+      const verifyPurchase = httpsCallable(
+        firebaseFunctions,
+        "verifyPlaySubscription"
+      );
+
+      const response = await verifyPurchase({
+        purchaseToken: token,
+        productId: "premium_monthly",
+      });
+
+      const result = response.data as {
+        verified?: boolean;
+        premiumActive?: boolean;
+      };
+
+      if (!result.verified || !result.premiumActive) {
+        processingPurchaseTokens.current.delete(token);
+
+        if (showMessage) {
+          Alert.alert(
+            "VERIFICATION PENDING",
+            "Google Play could not confirm your subscription yet."
+          );
+        }
+
+        return;
+      }
+
+      await finishBillingTransaction({
+        purchase,
+        isConsumable: false,
+      });
+
+      setUserType("PREMIUM");
+      setTrialActive(false);
+
+      if (showMessage) {
+        Alert.alert(
+          "PREMIUM ACTIVATED",
+          "Your premium membership is active."
+        );
+      }
+    } catch (error) {
+      processingPurchaseTokens.current.delete(token);
+
+      console.log("Purchase verification error:", error);
+
+      if (showMessage) {
+        Alert.alert(
+          "VERIFICATION PENDING",
+          "Purchase verification failed. Please try again later."
+        );
+      }
+    } finally {
+      setPurchaseBusy(false);
+    }
+  }
 
   // Fetch subscription details when Google Play billing connects.
   useEffect(() => {
