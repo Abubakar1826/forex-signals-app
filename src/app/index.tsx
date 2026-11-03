@@ -440,8 +440,10 @@ useEffect(() => {
     }
   }
   const {
-    connected: billingConnected,
+        connected: billingConnected,
     subscriptions: billingSubscriptions,
+    availablePurchases: billingAvailablePurchases,
+    getAvailablePurchases: getBillingAvailablePurchases,
     fetchProducts: fetchBillingProducts,
     requestPurchase: requestBillingPurchase,
     finishTransaction: finishBillingTransaction,
