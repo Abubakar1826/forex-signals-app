@@ -449,61 +449,8 @@ useEffect(() => {
     finishTransaction: finishBillingTransaction,
   } = useIAP({
     onPurchaseSuccess: async (purchase) => {
-      try {
-        if (
-          !purchase.purchaseToken ||
-          purchase.productId !== "premium_monthly"
-        ) {
-          Alert.alert(
-            "PURCHASE VERIFICATION",
-            "Purchase details are incomplete. Please contact support."
-          );
-          return;
-        }
-
-        const verifyPurchase = httpsCallable(
-          firebaseFunctions,
-          "verifyPlaySubscription"
-        );
-
-        const response = await verifyPurchase({
-          purchaseToken: purchase.purchaseToken,
-          productId: purchase.productId,
-        });
-
-        const result = response.data as {
-          verified?: boolean;
-          premiumActive?: boolean;
-        };
-
-        if (!result.verified || !result.premiumActive) {
-          Alert.alert(
-            "PREMIUM NOT ACTIVATED",
-            "Google Play could not confirm your subscription yet."
-          );
-          return;
-        }
-
-        await finishBillingTransaction({
-          purchase,
-          isConsumable: false,
-        });
-
-        setUserType("PREMIUM");
-        setTrialActive(false);
-
-        Alert.alert(
-          "PREMIUM ACTIVATED",
-          "Your premium membership is active."
-        );
-      } catch (error) {
-        console.log("Purchase verification error:", error);
-        Alert.alert(
-          "VERIFICATION PENDING",
-          "Purchase verification failed. Please try again later."
-        );
-      }
-    },
+  await verifyAndFinishPlayPurchase(purchase, true);
+},
 
     onPurchaseError: (error) => {
       console.log("Google Play purchase error:", error);
