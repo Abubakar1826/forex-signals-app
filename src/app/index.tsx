@@ -334,16 +334,14 @@ useEffect(() => {
 
   async function initializeUserSession() {
     try {
-    if (!firebaseAuth.currentUser) 
-    {
-        await 
-    signInAnonymously(firebaseAuth);
-}
+        if (!firebaseAuth.currentUser) {
+        await signInAnonymously(firebaseAuth);
+      }
 
-if (!cancelled) {
-  setFirebaseAuthReady(true);
-  await setupTrialSystem();
-}
+      if (!cancelled) {
+        setFirebaseAuthReady(true);
+        await setupTrialSystem();
+      }
     } catch (error) {
       console.log("Firebase Auth Error:", error);
     }
@@ -552,7 +550,7 @@ if (!cancelled) {
     }
   }
 
- useEffect(() => {
+    useEffect(() => {
     if (!billingConnected || !firebaseAuthReady) return;
 
     getBillingAvailablePurchases().catch((error) => {
@@ -564,13 +562,13 @@ if (!cancelled) {
   }, [billingConnected, firebaseAuthReady, getBillingAvailablePurchases]);
 
   useEffect(() => {
-  if (
-   !billingConnected ||
-   !firebaseAuthReady ||
-  billingAvailablePurchases.length === 0
-) {
-  return;
-}
+    if (
+      !billingConnected ||
+      !firebaseAuthReady ||
+      billingAvailablePurchases.length === 0
+    ) {
+      return;
+    }
 
     const existingPurchase = billingAvailablePurchases.find(
       (purchase: any) =>
