@@ -32,4 +32,4 @@ jobs:
         run: npm install
 
       - name: Deploy Firebase Functions
-        run: npx --yes firebase-tools@latest deploy --only functions --project forex-signals-800-pips
+        run: npx --yes firebase-tools@latest deploy --only functions:verifyPlaySubscription --project forex-signals-800-pips
