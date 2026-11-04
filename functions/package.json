@@ -3,7 +3,7 @@
   "description": "Server-side push notifications for FOREX SIGNALS 800 PIPS",
   "private": true,
   "engines": {
-    "node": "20"
+    "node": "22"
   },
   "main": "index.js",
   "scripts": {
