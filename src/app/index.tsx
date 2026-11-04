@@ -325,6 +325,9 @@ const response = await fetch(
 
 export default function App() {
   
+const [firebaseAuthReady, setFirebaseAuthReady] = useState(
+  Boolean(firebaseAuth.currentUser)
+);
   
 useEffect(() => {
   let cancelled = false;
@@ -332,12 +335,13 @@ useEffect(() => {
   async function initializeUserSession() {
     try {
       if (!firebaseAuth.currentUser) {
-        await signInAnonymously(firebaseAuth);
-      }
+  await signInAnonymously(firebaseAuth);
+}
 
-      if (!cancelled) {
-        await setupTrialSystem();
-      }
+if (!cancelled) {
+  setFirebaseAuthReady(true);
+  await setupTrialSystem();
+}
     } catch (error) {
       console.log("Firebase Auth Error:", error);
     }
@@ -547,7 +551,7 @@ useEffect(() => {
   }
 
     useEffect(() => {
-    if (!billingConnected) return;
+    if (!billingConnected || !firebaseAuthReady) return;
 
     getBillingAvailablePurchases().catch((error) => {
       console.log(
@@ -555,15 +559,16 @@ useEffect(() => {
         error
       );
     });
-  }, [billingConnected, getBillingAvailablePurchases]);
+  }, [billingConnected, firebaseAuthReady, getBillingAvailablePurchases]);
 
   useEffect(() => {
     if (
-      !billingConnected ||
-      billingAvailablePurchases.length === 0
-    ) {
-      return;
-    }
+  !billingConnected ||
+  !firebaseAuthReady ||
+  billingAvailablePurchases.length === 0
+) {
+  return;
+}
 
     const existingPurchase = billingAvailablePurchases.find(
       (purchase: any) =>
@@ -577,7 +582,7 @@ useEffect(() => {
         false
       );
     }
-  }, [billingAvailablePurchases, billingConnected]);
+  }, [billingAvailablePurchases, billingConnected, firebaseAuthReady]);
   
   // Fetch subscription details when Google Play billing connects.
   useEffect(() => {
