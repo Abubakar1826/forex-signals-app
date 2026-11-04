@@ -334,8 +334,10 @@ useEffect(() => {
 
   async function initializeUserSession() {
     try {
-      if (!firebaseAuth.currentUser) {
-  await signInAnonymously(firebaseAuth);
+    if (!firebaseAuth.currentUser) 
+    {
+        await 
+    signInAnonymously(firebaseAuth);
 }
 
 if (!cancelled) {
@@ -550,7 +552,7 @@ if (!cancelled) {
     }
   }
 
-    useEffect(() => {
+ useEffect(() => {
     if (!billingConnected || !firebaseAuthReady) return;
 
     getBillingAvailablePurchases().catch((error) => {
@@ -562,9 +564,9 @@ if (!cancelled) {
   }, [billingConnected, firebaseAuthReady, getBillingAvailablePurchases]);
 
   useEffect(() => {
-    if (
-  !billingConnected ||
-  !firebaseAuthReady ||
+  if (
+   !billingConnected ||
+   !firebaseAuthReady ||
   billingAvailablePurchases.length === 0
 ) {
   return;
