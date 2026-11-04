@@ -167,10 +167,14 @@ exports.verifyPlaySubscription = onCall(
         throw error;
       }
 
-      console.error(
-        "Google Play subscription verification failed:",
-        error.message
-      );
+      console.error("GOOGLE PLAY API DIAGNOSTIC:", {
+  message: error.message,
+  code: error.code,
+  status: error.status,
+  responseStatus: error.response?.status,
+  responseData: error.response?.data,
+  errors: error.errors,
+});
 
       throw new HttpsError(
         "internal",
