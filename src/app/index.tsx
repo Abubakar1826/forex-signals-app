@@ -492,6 +492,36 @@ useEffect(() => {
     processingPurchaseTokens.current.add(token);
 
     try {
+      // Firebase Auth diagnostic — never log the actual token.
+      const currentUser = firebaseAuth.currentUser;
+
+      console.log("BILLING AUTH DIAGNOSTIC:", {
+        currentUserPresent: Boolean(currentUser),
+        uidPresent: Boolean(currentUser?.uid),
+      });
+
+      if (!currentUser) {
+        console.log(
+          "BILLING AUTH DIAGNOSTIC: No Firebase user found."
+        );
+        throw new Error("Firebase user is not available.");
+      }
+
+      try {
+        const idToken = await currentUser.getIdToken(true);
+
+        console.log("BILLING AUTH TOKEN DIAGNOSTIC:", {
+          tokenAvailable: Boolean(idToken),
+          tokenLength: idToken.length,
+        });
+      } catch (authError) {
+        console.log(
+          "BILLING AUTH TOKEN ERROR:",
+          authError
+        );
+        throw authError;
+      }
+
       const verifyPurchase = httpsCallable(
         firebaseFunctions,
         "verifyPlaySubscription"
