@@ -15,27 +15,7 @@ const EXPO_PUSH_URL =
 
 
 function isEligibleUser(fields) {
-  const enabled =
-    fields.notificationEnabled !== false;
-
-  const userType =
-    String(fields.userType || "TRIAL").toUpperCase();
-
-  const trialStatus =
-    String(fields.trialStatus || "ACTIVE").toUpperCase();
-
-  const premiumStatus =
-    String(fields.premiumStatus || "").toUpperCase();
-
-  return (
-    enabled &&
-    (
-      userType === "TRIAL" ||
-      userType === "PREMIUM" ||
-      trialStatus === "ACTIVE" ||
-      premiumStatus === "ACTIVE"
-    )
-  );
+  return fields.notificationEnabled !== false;
 }
 
 
