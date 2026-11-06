@@ -176,11 +176,6 @@ const USERS_FIRESTORE_URL =
 const USER_ID_STORAGE_KEY =
   "FOREX_SIGNALS_800_PIPS_USER_ID";
 
-const TRIAL_START_STORAGE_KEY =
-  "FOREX_SIGNALS_800_PIPS_TRIAL_START";
-
-const TRIAL_DAYS = 15;
-
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
