@@ -1126,13 +1126,12 @@ async function getOrCreateUserId() {
         console.log("Premium status check error:", error);
       }
 
-      setTrialActive(premiumActive);
-      setUserType(premiumActive ? "PREMIUM" : "FREE");
+            setPremiumAccessActive(premiumActive);
 
     } catch (error) {
       console.log("Subscription status error:", error);
-      setTrialActive(false);
-      setUserType("FREE");
+      setPremiumAccessActive(false);
+    }
     }
   }
 
