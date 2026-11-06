@@ -3017,7 +3017,7 @@ async function getOrCreateUserId() {
             styles.heading
           }
         >
-          15-Day Free Trial
+          Google Play Free Trial
         </Text>
 
 
@@ -3026,7 +3026,7 @@ async function getOrCreateUserId() {
             styles.paragraph
           }
         >
-          Experience our service and transparency before becoming a Premium Member.
+          Eligible new subscribers may receive a 15-day free trial through Google Play. Trial availability is determined by Google Play.
         </Text>
 
 
