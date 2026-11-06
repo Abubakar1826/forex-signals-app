@@ -14,7 +14,7 @@
     "backgroundImage": "./assets/images/android-icon-background.png",
     "monochromeImage": "./assets/images/android-icon-monochrome.png"
   },
-  "versionCode": 19,
+  "versionCode": 20,
   "predictiveBackGestureEnabled": false,
   "googleServicesFile": "./google-services.json",
   "package": "com.abubakar1826.forexsignals",
