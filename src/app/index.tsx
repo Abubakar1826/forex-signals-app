@@ -2602,23 +2602,19 @@ async function saveUserToFirestore(
               </Text>
 
 
-              <Text
-                style={
-                  trialActive
+              
+<Text
+  style={
+    trialActive
+      ? styles.trialActiveText
+      : styles.trialExpiredText
+  }
+>
+  {trialActive
+    ? "GOOGLE PLAY SUBSCRIPTION ACTIVE"
+    : "NO ACTIVE SUBSCRIPTION"}
+</Text>
 
-                    ? styles.trialActiveText
-
-                    : styles.trialExpiredText
-                }
-              >
-
-                {trialActive
-
-                  ? `FREE TRIAL — ${trialDaysLeft} DAYS LEFT`
-
-                  : "TRIAL EXPIRED"}
-
-              </Text>
 
 
               <Text
