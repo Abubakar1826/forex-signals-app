@@ -2691,25 +2691,22 @@ async function getOrCreateUserId() {
               styles.goldSmall
             }
           >
-            WELCOME OFFER
+                      <Text
+            style={styles.goldSmall}
+          >
+            GOOGLE PLAY OFFER
           </Text>
 
-
           <Text
-            style={
-              styles.trialDays
-            }
+            style={styles.trialDays}
           >
             15 DAYS
           </Text>
 
-
           <Text
-            style={
-              styles.freeText
-            }
+            style={styles.freeText}
           >
-            FREE TRIAL
+            GOOGLE PLAY FREE TRIAL*
           </Text>
 
 
