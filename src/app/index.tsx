@@ -40,7 +40,19 @@ const firebaseApp =
     ? getApps()[0]
     : initializeApp(FIREBASE_CONFIG);
 
-const firebaseAuth = getAuth(firebaseApp);
+let firebaseAuth;
+
+try {
+  firebaseAuth = initializeAuth(firebaseApp, {
+    persistence: getReactNativePersistence(AsyncStorage),
+  });
+} catch (error) {
+  if (error?.code === "auth/already-initialized") {
+    firebaseAuth = getAuth(firebaseApp);
+  } else {
+    throw error;
+  }
+}
 const firebaseFunctions = getFunctions(firebaseApp);
 
 const GOLD = "#D4AF37";
