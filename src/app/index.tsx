@@ -1107,174 +1107,38 @@ async function getOrCreateUserId() {
 
 
 
-  /* SAVE USER TO FIREBASE */
+    /* GOOGLE PLAY SUBSCRIPTION ACCESS */
 
-async function saveUserToFirestore(
-  currentUserId,
-  currentTrialStart,
-  currentTrialStatus,
-  currentUserType
-) {
-
-  if (!currentUserId) {
-    return;
-  }
-
-  try {
-
-    const updateUrl =
-      `${USERS_FIRESTORE_URL}/${encodeURIComponent(currentUserId)}` +
-      `?updateMask.fieldPaths=userId` +
-      `&updateMask.fieldPaths=trialStart` +
-      `&updateMask.fieldPaths=trialStatus` +
-      `&updateMask.fieldPaths=userType` +
-      `&updateMask.fieldPaths=lastActive`;
-
-    const response =
-      await fetch(
-        updateUrl,
-        {
-          method: "PATCH",
-
-          headers: {
-            "Content-Type":
-              "application/json",
-          },
-
-          body: JSON.stringify({
-            fields: {
-
-              userId: {
-                stringValue:
-                  currentUserId,
-              },
-
-              trialStart: {
-                stringValue:
-                  currentTrialStart,
-              },
-
-              trialStatus: {
-                stringValue:
-                  currentTrialStatus,
-              },
-
-              userType: {
-                stringValue:
-                  currentUserType,
-              },
-
-              lastActive: {
-                stringValue:
-                  new Date().toISOString(),
-              },
-
-            },
-          }),
-        }
-      );
-
-    if (!response.ok) {
-
-      const errorText =
-        await response.text();
-
-      console.log(
-        "User Firebase Error:",
-        response.status,
-        errorText
-      );
-
-    }
-
-  } catch (error) {
-
-    console.log(
-      "User Firebase Error:",
-      error
-    );
-
-  }
-
-}
-
-
-
-  /* LOAD USER FROM FIREBASE */
-
-  async function loadUserFromFirestore(
-    currentUserId
-  ) {
-
-    if (!currentUserId) {
-      return null;
-    }
-
-
+  async function setupTrialSystem() {
     try {
+      let premiumActive = false;
 
-      const response =
-        await fetch(
-          `${USERS_FIRESTORE_URL}/${currentUserId}`
+      try {
+        const checkPremium = httpsCallable(
+          firebaseFunctions,
+          "getPremiumStatus"
         );
 
+        const premiumResponse = await checkPremium({});
 
-      if (!response.ok) {
-        return null;
+        premiumActive = Boolean(
+          (premiumResponse.data as {
+            premiumActive?: boolean;
+          }).premiumActive
+        );
+      } catch (error) {
+        console.log("Premium status check error:", error);
       }
 
-
-      const data =
-        await response.json();
-
-
-      const fields =
-        data.fields || {};
-
-
-      return {
-
-        userId:
-          getFirestoreValue(
-            fields.userId
-          ),
-
-        trialStart:
-          getFirestoreValue(
-            fields.trialStart
-          ),
-
-        trialStatus:
-          getFirestoreValue(
-            fields.trialStatus
-          ),
-
-        userType:
-          getFirestoreValue(
-            fields.userType
-          ),
-
-        notificationEnabled:
-          fields.notificationEnabled?.booleanValue !== undefined
-            ? fields.notificationEnabled.booleanValue
-            : true,
-
-      };
+      setTrialActive(premiumActive);
+      setUserType(premiumActive ? "PREMIUM" : "FREE");
 
     } catch (error) {
-
-      console.log(
-        "Load User Error:",
-        error
-      );
-
-      return null;
-
+      console.log("Subscription status error:", error);
+      setTrialActive(false);
+      setUserType("FREE");
     }
-
   }
-
-
 
   /* TRIAL SYSTEM */
 
