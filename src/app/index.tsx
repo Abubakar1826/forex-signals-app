@@ -1287,170 +1287,38 @@ async function saveUserToFirestore(
 
   /* TRIAL SYSTEM */
 
+ 
   async function setupTrialSystem() {
-
     try {
-
-      const currentUserId =
-        await getOrCreateUserId();
-
-
-      if (!currentUserId) {
-        return;
-      }
-
-
-      const firebaseUser =
-        await loadUserFromFirestore(
-          currentUserId
-        );
-
-
-      let savedTrialStart =
-        await AsyncStorage.getItem(
-          TRIAL_START_STORAGE_KEY
-        );
-
-
-      /* FIREBASE TRIAL START */
-
-      if (
-        firebaseUser &&
-        firebaseUser.trialStart
-      ) {
-
-        savedTrialStart =
-          firebaseUser.trialStart;
-
-
-        await AsyncStorage.setItem(
-          TRIAL_START_STORAGE_KEY,
-          savedTrialStart
-        );
-
-      }
-
-
-      /* FIRST TIME USER */
-
-      if (!savedTrialStart) {
-
-        savedTrialStart =
-          new Date().toISOString();
-
-
-        await AsyncStorage.setItem(
-          TRIAL_START_STORAGE_KEY,
-          savedTrialStart
-        );
-
-      }
-
-
-      const trialStartDate =
-        new Date(savedTrialStart);
-
-
-      const currentDate =
-        new Date();
-
-
-      const difference =
-        currentDate.getTime() -
-        trialStartDate.getTime();
-
-
-      const daysPassed =
-        Math.floor(
-          difference /
-            (
-              1000 *
-              60 *
-              60 *
-              24
-            )
-        );
-
-
-      const remainingDays =
-        Math.max(
-          0,
-          TRIAL_DAYS - daysPassed
-        );
-
-
-      const isTrialActive =
-        daysPassed < TRIAL_DAYS;
-
       let premiumActive = false;
 
-try {
-  const checkPremium = httpsCallable(
-    firebaseFunctions,
-    "getPremiumStatus"
-  );
+      try {
+        const checkPremium = httpsCallable(
+          firebaseFunctions,
+          "getPremiumStatus"
+        );
 
-  const premiumResponse = await checkPremium({});
+        const premiumResponse = await checkPremium({});
 
-  premiumActive = Boolean(
-    (premiumResponse.data as {
-      premiumActive?: boolean;
-    }).premiumActive
-  );
-} catch (error) {
-  console.log("Premium status check error:", error);
-}
+        premiumActive = Boolean(
+          (premiumResponse.data as {
+            premiumActive?: boolean;
+          }).premiumActive
+        );
+      } catch (error) {
+        console.log("Premium status check error:", error);
+      }
 
-
-     const currentTrialStatus =
-  premiumActive || isTrialActive
-    ? "ACTIVE"
-    : "EXPIRED";
-
-const currentUserType =
-  premiumActive
-    ? "PREMIUM"
-    : isTrialActive
-      ? "TRIAL"
-      : "EXPIRED";
-
-
-      setTrialStart(
-        savedTrialStart
-      );
-
-      setTrialDaysLeft(
-        remainingDays
-      );
-
-      setTrialActive(
-  isTrialActive && !premiumActive
-);
-
-      setUserType(
-        currentUserType
-      );
-
-
-      /* SAVE TO FIREBASE */
-
-      await saveUserToFirestore(
-        currentUserId,
-        savedTrialStart,
-        currentTrialStatus,
-        currentUserType
-      );
+      setTrialActive(premiumActive);
+      setUserType(premiumActive ? "PREMIUM" : "FREE");
 
     } catch (error) {
-
-      console.log(
-        "Trial Error:",
-        error
-      );
-
+      console.log("Subscription status error:", error);
+      setTrialActive(false);
+      setUserType("FREE");
     }
-
   }
+ 
 
 
 
