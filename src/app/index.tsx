@@ -1140,43 +1140,6 @@ async function getOrCreateUserId() {
     }
   }
 
-  /* TRIAL SYSTEM */
-
- 
-  async function setupTrialSystem() {
-    try {
-      let premiumActive = false;
-
-      try {
-        const checkPremium = httpsCallable(
-          firebaseFunctions,
-          "getPremiumStatus"
-        );
-
-        const premiumResponse = await checkPremium({});
-
-        premiumActive = Boolean(
-          (premiumResponse.data as {
-            premiumActive?: boolean;
-          }).premiumActive
-        );
-      } catch (error) {
-        console.log("Premium status check error:", error);
-      }
-
-      setTrialActive(premiumActive);
-      setUserType(premiumActive ? "PREMIUM" : "FREE");
-
-    } catch (error) {
-      console.log("Subscription status error:", error);
-      setTrialActive(false);
-      setUserType("FREE");
-    }
-  }
- 
-
-
-
 
   /* NOTIFICATIONS SETUP */
 
