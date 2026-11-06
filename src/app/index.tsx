@@ -387,11 +387,8 @@ useEffect(() => {
     useState("");
 
   
-  const [trialActive, setTrialActive] =
+    const [premiumAccessActive, setPremiumAccessActive] =
     useState(false);
-
-  const [userType, setUserType] =
-    useState("FREE");
 
 
     const [reviewerModalVisible, setReviewerModalVisible] = useState(false);
