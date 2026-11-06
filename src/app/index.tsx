@@ -2418,25 +2418,17 @@ async function getOrCreateUserId() {
               
 <Text
   style={
-    trialActive
+    premiumAccessActive
       ? styles.trialActiveText
       : styles.trialExpiredText
   }
 >
-  {trialActive
+  {premiumAccessActive
     ? "GOOGLE PLAY SUBSCRIPTION ACTIVE"
     : "NO ACTIVE SUBSCRIPTION"}
 </Text>
 
 
-
-              <Text
-                style={
-                  styles.settingDescription
-                }
-              >
-                User Type: {userType}
-              </Text>
 
             </View>
 
