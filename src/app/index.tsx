@@ -335,7 +335,7 @@ useEffect(() => {
 
       if (!cancelled) {
         setFirebaseAuthReady(true);
-        await setupTrialSystem();
+        await refreshPremiumAccess();
       }
     } catch (error) {
       console.log("Firebase Auth Error:", error);
@@ -1105,7 +1105,7 @@ async function getOrCreateUserId() {
 
     /* GOOGLE PLAY SUBSCRIPTION ACCESS */
 
-  async function setupTrialSystem() {
+  async function refreshPremiumAccess() {
     try {
       let premiumActive = false;
 
