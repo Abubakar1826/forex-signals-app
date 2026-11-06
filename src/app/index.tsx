@@ -391,17 +391,13 @@ useEffect(() => {
   const [userId, setUserId] =
     useState("");
 
+  
   const [trialActive, setTrialActive] =
-    useState(true);
-
-  const [trialStart, setTrialStart] =
-    useState("");
-
-  const [trialDaysLeft, setTrialDaysLeft] =
-    useState(TRIAL_DAYS);
+    useState(false);
 
   const [userType, setUserType] =
-    useState("TRIAL");
+    useState("FREE");
+
 
     const [reviewerModalVisible, setReviewerModalVisible] = useState(false);
   const [reviewerCode, setReviewerCode] = useState("");
