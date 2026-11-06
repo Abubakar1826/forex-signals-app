@@ -22,7 +22,7 @@ import * as Application from "expo-application";
 import { useIAP } from "expo-iap";
 
 import { initializeApp, getApps } from "firebase/app";
-import { getAuth, signInAnonymously } from "firebase/auth";
+import { getAuth, initializeAuth, getReactNativePersistence, signInAnonymously } from "firebase/auth";
 import { getFunctions, httpsCallable } from "firebase/functions";
 
 
