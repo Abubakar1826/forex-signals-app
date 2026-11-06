@@ -414,8 +414,7 @@ useEffect(() => {
 
       setReviewerModalVisible(false);
       setReviewerCode("");
-      setTrialActive(false);
-      setUserType("PREMIUM");
+            setPremiumAccessActive(true);
 
       Alert.alert(
         "REVIEWER ACCESS ACTIVATED",
@@ -544,7 +543,7 @@ useEffect(() => {
       });
 
       setUserType("PREMIUM");
-      setTrialActive(false);
+            setPremiumAccessActive(true);
 
       if (showMessage) {
         Alert.alert(
