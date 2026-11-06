@@ -3998,7 +3998,7 @@ async function getOrCreateUserId() {
           >
 
 
-            {!trialActive && userType !== "PREMIUM" ? (
+            {!premiumAccessActive ? (
 
               <View
                 style={
