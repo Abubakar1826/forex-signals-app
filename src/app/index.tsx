@@ -1132,8 +1132,8 @@ async function getOrCreateUserId() {
       console.log("Subscription status error:", error);
       setPremiumAccessActive(false);
     }
-    }
   }
+  
 
 
   /* NOTIFICATIONS SETUP */
