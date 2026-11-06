@@ -542,7 +542,7 @@ useEffect(() => {
         isConsumable: false,
       });
 
-      setUserType("PREMIUM");
+      
             setPremiumAccessActive(true);
 
       if (showMessage) {
