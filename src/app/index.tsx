@@ -4220,7 +4220,7 @@ async function saveUserToFirestore(
                     styles.lockText
                   }
                 >
-                  Your 15-day free trial has ended.
+                  An active Google Play subscription is required to access Active Signals.
                 </Text>
 
 
