@@ -2686,12 +2686,7 @@ async function getOrCreateUserId() {
           }
         >
 
-          <Text
-            style={
-              styles.goldSmall
-            }
-          >
-                      <Text
+                    <Text
             style={styles.goldSmall}
           >
             GOOGLE PLAY OFFER
