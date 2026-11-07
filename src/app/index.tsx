@@ -341,7 +341,8 @@ useEffect(() => {
 
   async function initializeUserSession() {
     try {
-        if (!firebaseAuth.currentUser) {
+        await firebaseAuth.authStateReady();
+      if (!firebaseAuth.currentUser) {
         await signInAnonymously(firebaseAuth);
       }
 
