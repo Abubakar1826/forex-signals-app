@@ -167,13 +167,11 @@ exports.verifyPlaySubscription = onCall(
         throw error;
       }
 
-      console.error("GOOGLE PLAY API DIAGNOSTIC:", {
+      console.error("GOOGLE PLAY API ERROR:", {
   message: error.message,
   code: error.code,
   status: error.status,
   responseStatus: error.response?.status,
-  responseData: error.response?.data,
-  errors: error.errors,
 });
 
       throw new HttpsError(
