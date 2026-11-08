@@ -677,6 +677,15 @@ useEffect(() => {
           },
         },
         type: "subs",
+              });
+    } catch (error) {
+      console.log("Start premium purchase error:", error);
+      Alert.alert(
+        "PREMIUM MEMBERSHIP",
+        "Could not start Google Play billing. Please try again later."
+      );
+    }
+  }
       });
 
   const scrollRef = useRef(null);
