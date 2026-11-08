@@ -492,35 +492,14 @@ useEffect(() => {
     processingPurchaseTokens.current.add(token);
 
     try {
-      // Firebase Auth diagnostic — never log the actual token.
-      const currentUser = firebaseAuth.currentUser;
-
-      console.log("BILLING AUTH DIAGNOSTIC:", {
-        currentUserPresent: Boolean(currentUser),
-        uidPresent: Boolean(currentUser?.uid),
-      });
+            const currentUser = firebaseAuth.currentUser;
 
       if (!currentUser) {
-        console.log(
-          "BILLING AUTH DIAGNOSTIC: No Firebase user found."
-        );
         throw new Error("Firebase user is not available.");
       }
 
-      try {
-        const idToken = await currentUser.getIdToken(true);
-
-        console.log("BILLING AUTH TOKEN DIAGNOSTIC:", {
-          tokenAvailable: Boolean(idToken),
-          tokenLength: idToken.length,
-        });
-      } catch (authError) {
-        console.log(
-          "BILLING AUTH TOKEN ERROR:",
-          authError
-        );
-        throw authError;
-      }
+      // Refresh the Firebase ID token before server-side purchase verification.
+      await currentUser.getIdToken(true);
 
       const verifyPurchase = httpsCallable(
         firebaseFunctions,
@@ -705,14 +684,10 @@ No offer token was returned by either API field.`
         },
         type: "subs",
       });
-    } catch (error) {
-      console.log("Start premium purchase error:", error);
-      Alert.alert(
-        "PREMIUM MEMBERSHIP",
-        "Could not start Google Play billing. Please try again later."
-      );
-    }
-  }
+            Alert.alert(
+          "SUBSCRIPTION OFFER UNAVAILABLE",
+          "Google Play has not provided a valid subscription offer yet. Please try again later."
+        );
 
   const scrollRef = useRef(null);
 
