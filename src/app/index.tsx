@@ -661,16 +661,10 @@ useEffect(() => {
           ? offersFromCurrentApi
           : legacyOffers;
 
-      if (offers.length === 0) {
+          if (offers.length === 0) {
         Alert.alert(
-          "PLAY BILLING DIAGNOSTIC",
-          `Product: ${subscription.id}
-Product status: ${subscription.productStatusAndroid || "not provided"}
-Current offers: ${currentOffers.length}
-Legacy offers: ${
-            subscription.subscriptionOfferDetailsAndroid?.length ?? 0
-          }
-No offer token was returned by either API field.`
+          "SUBSCRIPTION OFFER UNAVAILABLE",
+          "Google Play has not provided a valid subscription offer yet. Please try again later."
         );
         return;
       }
@@ -684,10 +678,6 @@ No offer token was returned by either API field.`
         },
         type: "subs",
       });
-            Alert.alert(
-          "SUBSCRIPTION OFFER UNAVAILABLE",
-          "Google Play has not provided a valid subscription offer yet. Please try again later."
-        );
 
   const scrollRef = useRef(null);
 
