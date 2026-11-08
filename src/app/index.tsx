@@ -686,7 +686,7 @@ useEffect(() => {
       );
     }
   }
-      });
+    
 
   const scrollRef = useRef(null);
 
