@@ -64,7 +64,13 @@ jobs:
 
       - name: Inspect generated Android release configuration
         run: |
-          echo "Checking generated Gradle configuration..."
-          grep -R -n -E 'minifyEnabled|shrinkResources' android/app/build.gradle android/app/build.gradle.kts || true
-          echo "Checking generated ProGuard files..."
-          find android/app -maxdepth 2 -iname '*proguard*' -print
+                    echo "Generated Gradle properties:"
+          cat android/gradle.properties
+
+          echo "Checking R8 minification..."
+          grep -n '^android.enableMinifyInReleaseBuilds=true$' android/gradle.properties
+
+          echo "Checking resource shrinking..."
+          grep -n '^android.enableShrinkResourcesInReleaseBuilds=true$' android/gradle.properties
+
+          echo "Both R8 settings are enabled in generated Gradle properties."
