@@ -54,7 +54,8 @@
   }
     ]
     ],
-    "./plugins/with-r8-optimization",
+    "./plugins/with-r8-optimization"
+    ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
