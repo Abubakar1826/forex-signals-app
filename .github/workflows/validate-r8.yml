@@ -1,0 +1,51 @@
+
+name: Validate R8 Configuration
+
+on:
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Check resolved Expo R8 settings
+        run: |
+          npx expo config --type prebuild > expo-config.txt
+          grep -n -A 8 -B 3 'enableMinifyInReleaseBuilds' expo-config.txt
+          grep -q 'enableMinifyInReleaseBuilds: true' expo-config.txt
+          grep -q 'enableShrinkResourcesInReleaseBuilds: true' expo-config.txt
+          echo "Expo R8 settings verified."
+
+      - name: Generate Android project
+        run: npx expo prebuild --platform android --clean --no-install
+
+      - name: Inspect generated Android release configuration
+        run: |
+          echo "Checking generated Gradle configuration..."
+          grep -R -n -E 'minifyEnabled|shrinkResources' android/app/build.gradle android/app/build.gradle.kts || true
+          echo "Checking generated ProGuard files..."
+          find android/app -maxdepth 2 -iname '*proguard*' -print
