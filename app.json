@@ -52,7 +52,6 @@
       "enableShrinkResourcesInReleaseBuilds": true
     }
   }
-    ]
     ],
     "./plugins/with-r8-optimization"
     ],
