@@ -59,3 +59,12 @@ jobs:
 
           console.log('Both R8 settings are enabled.');
           NODE
+      - name: Generate Android project
+        run: npx expo prebuild --platform android --clean --no-install
+
+      - name: Inspect generated Android release configuration
+        run: |
+          echo "Checking generated Gradle configuration..."
+          grep -R -n -E 'minifyEnabled|shrinkResources' android/app/build.gradle android/app/build.gradle.kts || true
+          echo "Checking generated ProGuard files..."
+          find android/app -maxdepth 2 -iname '*proguard*' -print
