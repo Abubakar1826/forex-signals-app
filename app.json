@@ -52,7 +52,6 @@
       "enableShrinkResourcesInReleaseBuilds": true
     }
   }
-]
     ],
     "experiments": {
       "typedRoutes": true,
