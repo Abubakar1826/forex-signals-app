@@ -68,7 +68,8 @@ jobs:
 
           echo "===== Gradle Properties ====="
           grep -n -E 'android.enableMinifyInReleaseBuilds|android.enableShrinkResourcesInReleaseBuilds' android/gradle.properties || true
-
+          echo "===== Optimized Resource Shrinking ====="
+          grep -n '^android.r8.optimizedResourceShrinking=true$' android/gradle.properties
           echo "===== Generated Build Gradle Settings ====="
           grep -n -C 8 -E 'buildTypes|release|isMinifyEnabled|minifyEnabled|shrinkResources|proguardFiles|proguard-android' android/app/build.gradle || true
 
