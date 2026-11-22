@@ -64,7 +64,7 @@ jobs:
 
       - name: Inspect generated Android release configuration
         run: |
-                    echo "Generated Gradle properties:"
+          echo "Generated Gradle properties:"
           cat android/gradle.properties
 
           echo "Checking R8 minification..."
