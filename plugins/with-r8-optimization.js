@@ -2,6 +2,7 @@
 const {
   withAppBuildGradle,
   withGradleProperties,
+  withAndroidManifest,
 } = require("@expo/config-plugins");
 
 function withR8Optimization(config) {
@@ -46,6 +47,30 @@ function withR8Optimization(config) {
       });
     }
 
+    return config;
+  });
+
+  config = withAndroidManifest(config, (config) => {
+    const manifest = config.modResults.manifest;
+    const usesFeatures = manifest["uses-feature"] ?? [];
+    const featureName = "android.hardware.screen.portrait";
+
+    const portraitFeature = usesFeatures.find(
+      (feature) => feature.$?.["android:name"] === featureName
+    );
+
+    if (portraitFeature) {
+      portraitFeature.$["android:required"] = "false";
+    } else {
+      usesFeatures.push({
+        $: {
+          "android:name": featureName,
+          "android:required": "false",
+        },
+      });
+    }
+
+    manifest["uses-feature"] = usesFeatures;
     return config;
   });
 
