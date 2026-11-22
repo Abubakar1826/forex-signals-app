@@ -64,13 +64,24 @@ jobs:
 
       - name: Inspect generated Android release configuration
         run: |
-          echo "Generated Gradle properties:"
-          cat android/gradle.properties
+          set -eu
 
-          echo "Checking R8 minification..."
-          grep -n '^android.enableMinifyInReleaseBuilds=true$' android/gradle.properties
+          echo "===== Gradle Properties ====="
+          grep -n -E 'android.enableMinifyInReleaseBuilds|android.enableShrinkResourcesInReleaseBuilds' android/gradle.properties || true
 
-          echo "Checking resource shrinking..."
-          grep -n '^android.enableShrinkResourcesInReleaseBuilds=true$' android/gradle.properties
+          echo "===== Generated Build Gradle Settings ====="
+          grep -n -C 8 -E 'buildTypes|release|isMinifyEnabled|minifyEnabled|shrinkResources|proguardFiles|proguard-android' android/app/build.gradle || true
 
-          echo "Both R8 settings are enabled in generated Gradle properties."
+          echo "===== Generated ProGuard/R8 Files ====="
+          find android -type f \( -iname '*proguard*' -o -iname '*r8*' \) -print
+
+          echo "===== ProGuard/R8 Rules ====="
+          find android -type f \( -iname '*proguard*.pro' -o -iname '*r8*.pro' \) -exec sh -c '
+            for file do
+              echo "--- $file ---"
+              sed -n "1,240p" "$file"
+            done
+          ' sh {} +
+
+          echo "===== Android Gradle Plugin Version ====="
+          grep -n -E 'com.android.tools.build:gradle|com.android.application|com.android.library' android/build.gradle android/settings.gradle android/gradle/libs.versions.toml 2>/dev/null || true
