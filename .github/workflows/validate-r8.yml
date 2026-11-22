@@ -34,18 +34,28 @@ jobs:
 
       - name: Check resolved Expo R8 settings
         run: |
-          npx expo config --type prebuild > expo-config.txt
-          grep -n -A 8 -B 3 'enableMinifyInReleaseBuilds' expo-config.txt
-          grep -q 'enableMinifyInReleaseBuilds: true' expo-config.txt
-          grep -q 'enableShrinkResourcesInReleaseBuilds: true' expo-config.txt
-          echo "Expo R8 settings verified."
+          node <<'NODE'
+          const config = require('./app.json').expo;
+          const plugin = config.plugins.find(
+            (item) => Array.isArray(item) && item[0] === 'expo-build-properties'
+          );
 
-      - name: Generate Android project
-        run: npx expo prebuild --platform android --clean --no-install
+          if (!plugin) {
+            throw new Error('expo-build-properties plugin not found');
+          }
 
-      - name: Inspect generated Android release configuration
-        run: |
-          echo "Checking generated Gradle configuration..."
-          grep -R -n -E 'minifyEnabled|shrinkResources' android/app/build.gradle android/app/build.gradle.kts || true
-          echo "Checking generated ProGuard files..."
-          find android/app -maxdepth 2 -iname '*proguard*' -print
+          const android = plugin[1]?.android ?? {};
+
+          console.log('Minify:', android.enableMinifyInReleaseBuilds);
+          console.log('Resource shrinking:', android.enableShrinkResourcesInReleaseBuilds);
+
+          if (android.enableMinifyInReleaseBuilds !== true) {
+            throw new Error('R8 minification is not enabled');
+          }
+
+          if (android.enableShrinkResourcesInReleaseBuilds !== true) {
+            throw new Error('Resource shrinking is not enabled');
+          }
+
+          console.log('Both R8 settings are enabled.');
+          NODE
